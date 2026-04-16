@@ -1,4 +1,5 @@
-﻿using IgrejaV2.Infraestrutura.Contexto;
+using IgrejaV2.Infraestrutura.Contexto;
+using Microsoft.EntityFrameworkCore;
 
 namespace IgrejaV2.Infraestrutura.DatabaseConfig
 {

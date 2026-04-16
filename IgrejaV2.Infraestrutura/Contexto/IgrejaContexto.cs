@@ -1,4 +1,4 @@
-﻿using IgrejaV2.Dominio.Entidades;
+using IgrejaV2.Dominio.Entidades;
 using Microsoft.EntityFrameworkCore;
 
 namespace IgrejaV2.Infraestrutura.Contexto
@@ -11,15 +11,14 @@ namespace IgrejaV2.Infraestrutura.Contexto
         public DbSet<Log> Logs                                  => Set<Log>();
         public DbSet<Familia> Familias                          => Set<Familia>();
         public DbSet<PessoaFamilia> PessoaFamilias              => Set<PessoaFamilia>();
+        public DbSet<Pessoa> Pessoas                            => Set<Pessoa>();
         public DbSet<Endereco> Enderecos                        => Set<Endereco>();
+        public DbSet<PessoaEndereco> PessoasEnderecos           => Set<PessoaEndereco>();
         public DbSet<TipoEvento> TiposEvento                    => Set<TipoEvento>();
         public DbSet<Evento> Eventos                            => Set<Evento>();
-        public DbSet<EventoConteudo> EventoConteudos            => Set<EventoConteudo>();
         public DbSet<Presenca> Presencas                        => Set<Presenca>();
-        public DbSet<Alerta> Alertas                            => Set<Alerta>();
-        public DbSet<Observacao> Observacoes                    => Set<Observacao>();
-        public DbSet<Escala> Escalas                            => Set<Escala>();
-        public DbSet<EscalaSubstituicao> EscalaSubstituicoes    => Set<EscalaSubstituicao>();
+        public DbSet<Igreja> Igrejas                            => Set<Igreja>();
+        public DbSet<Patrimonio> Patrimonios                    => Set<Patrimonio>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -27,6 +26,4 @@ namespace IgrejaV2.Infraestrutura.Contexto
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(IgrejaContexto).Assembly);
         }
     }
-
-
 }

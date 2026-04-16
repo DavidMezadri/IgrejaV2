@@ -1,6 +1,7 @@
-﻿using IgrejaV2.Dominio.Entidades;
+using IgrejaV2.Dominio.Entidades;
 using IgrejaV2.Dominio.Interfaces;
 using IgrejaV2.Infraestrutura.Contexto;
+using IgrejaV2.Infraestrutura.Repositorios.Base;
 using Microsoft.EntityFrameworkCore;
 
 namespace IgrejaV2.Infraestrutura.Repositorios
@@ -19,12 +20,7 @@ namespace IgrejaV2.Infraestrutura.Repositorios
         public async Task<Evento?> ObterComPresencasAsync(int id, CancellationToken ct = default)
             => await _dbSet.AsNoTracking()
                            .Include(e => e.Presencas)
-                               .ThenInclude(p => p.Usuario)
-                           .FirstOrDefaultAsync(e => e.Id == id, ct);
-
-        public async Task<Evento?> ObterComConteudosAsync(int id, CancellationToken ct = default)
-            => await _dbSet.AsNoTracking()
-                           .Include(e => e.Conteudos)
+                               .ThenInclude(p => p.Pessoa)
                            .FirstOrDefaultAsync(e => e.Id == id, ct);
 
         public async Task<Evento?> ObterUltimoEventoAsync(CancellationToken ct = default)
