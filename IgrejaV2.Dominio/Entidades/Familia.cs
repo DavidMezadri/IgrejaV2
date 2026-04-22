@@ -11,5 +11,5 @@ public class Familia : EntidadeBase
     public string? Observacoes { get; set; }
 
     // Navegacao
-    public ICollection<PessoaFamilia> Membros { get; set; } = new List<PessoaFamilia>();
+    public ICollection<Pessoa> Membros { get; set; } = new List<Pessoa>();
 }

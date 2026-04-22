@@ -1,20 +1,36 @@
+using Dapper;
 using IgrejaV2.Dominio.Entidades;
 using IgrejaV2.Dominio.Interfaces;
+using Npgsql;
 
 namespace IgrejaV2.Infraestrutura.Repositorios.Dapper
 {
-    public class RepositorioPresencaDapper : IRepositorioPresenca
+    public class RepositorioPresencaDapper : IgrejaV2.Infraestrutura.Repositorios.Base.RepositorioBaseDapper<Presenca>, IRepositorioPresenca
     {
-        private readonly string _connectionString;
-        public RepositorioPresencaDapper(string connectionString)
+        protected override string NomeTabela => "presencas";
+
+        public RepositorioPresencaDapper(string connectionString) : base(connectionString) { }
+
+        public async Task<IEnumerable<Presenca>> ObterPorEventoAsync(int eventoId, CancellationToken ct = default)
         {
-            _connectionString = connectionString;
+            var sql = @"
+                SELECT * FROM presencas
+                WHERE evento_id = @EventoId AND deletado = false
+                ORDER BY id";
+
+            using var conn = CriarConexao();
+            return await conn.QueryAsync<Presenca>(new CommandDefinition(sql, new { EventoId = eventoId }, cancellationToken: ct));
         }
 
-        public Task AdicionarAsync(Presenca entidade, CancellationToken ct = default) => throw new NotImplementedException();
-        public Task AtualizarAsync(Presenca entidade, CancellationToken ct = default) => throw new NotImplementedException();
-        public Task DeletarAsync(int id, CancellationToken ct = default) => throw new NotImplementedException();
-        public Task<Presenca?> ObterPorIdAsync(int id, CancellationToken ct = default) => throw new NotImplementedException();
-        public Task<IEnumerable<Presenca>> ObterTodosAsync(CancellationToken ct = default) => throw new NotImplementedException();
+        public async Task<IEnumerable<Presenca>> ObterPorPessoaAsync(int pessoaId, CancellationToken ct = default)
+        {
+            var sql = @"
+                SELECT * FROM presencas
+                WHERE pessoa_id = @PessoaId AND deletado = false
+                ORDER BY data_criacao DESC";
+
+            using var conn = CriarConexao();
+            return await conn.QueryAsync<Presenca>(new CommandDefinition(sql, new { PessoaId = pessoaId }, cancellationToken: ct));
+        }
     }
 }

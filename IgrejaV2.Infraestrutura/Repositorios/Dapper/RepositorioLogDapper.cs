@@ -1,20 +1,37 @@
+using Dapper;
 using IgrejaV2.Dominio.Entidades;
 using IgrejaV2.Dominio.Interfaces;
+using Npgsql;
 
 namespace IgrejaV2.Infraestrutura.Repositorios.Dapper
 {
-    public class RepositorioLogDapper : IRepositorioLog
+    public class RepositorioLogDapper : IgrejaV2.Infraestrutura.Repositorios.Base.RepositorioBaseDapper<Log>, IRepositorioLog
     {
-        private readonly string _connectionString;
-        public RepositorioLogDapper(string connectionString)
+        protected override string NomeTabela => "logs";
+
+        public RepositorioLogDapper(string connectionString) : base(connectionString) { }
+
+        public async Task<IEnumerable<Log>> ObterPorUsuarioAsync(int usuarioId, CancellationToken ct = default)
         {
-            _connectionString = connectionString;
+            var sql = @"
+                SELECT * FROM logs
+                WHERE usuario_id = @UsuarioId AND deletado = false
+                ORDER BY data_criacao DESC";
+
+            using var conn = CriarConexao();
+            return await conn.QueryAsync<Log>(new CommandDefinition(sql, new { UsuarioId = usuarioId }, cancellationToken: ct));
         }
 
-        public Task AdicionarAsync(Log entidade, CancellationToken ct = default) => throw new NotImplementedException();
-        public Task AtualizarAsync(Log entidade, CancellationToken ct = default) => throw new NotImplementedException();
-        public Task DeletarAsync(int id, CancellationToken ct = default) => throw new NotImplementedException();
-        public Task<Log?> ObterPorIdAsync(int id, CancellationToken ct = default) => throw new NotImplementedException();
-        public Task<IEnumerable<Log>> ObterTodosAsync(CancellationToken ct = default) => throw new NotImplementedException();
+        public async Task<IEnumerable<Log>> ObterPorEntidadeAsync(string entidade, int entidadeId, CancellationToken ct = default)
+        {
+            var sql = @"
+                SELECT * FROM logs
+                WHERE entidade = @Entidade AND entidade_id = @EntidadeId AND deletado = false
+                ORDER BY data_criacao DESC";
+
+            using var conn = CriarConexao();
+            return await conn.QueryAsync<Log>(new CommandDefinition(sql,
+                new { Entidade = entidade, EntidadeId = entidadeId }, cancellationToken: ct));
+        }
     }
 }

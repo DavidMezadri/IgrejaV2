@@ -19,5 +19,4 @@ public class Igreja : EntidadeBase
 
     // Navegação
     public ICollection<Patrimonio> Patrimonios { get; set; } = new List<Patrimonio>();
-    public ICollection<Log> Logs { get; set; } = new List<Log>();
 }

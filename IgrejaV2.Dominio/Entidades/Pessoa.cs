@@ -20,5 +20,6 @@ public class Pessoa : EntidadeBase
     // Navegacao
     public ICollection<PessoaEndereco> Enderecos { get; set; } = new List<PessoaEndereco>();
     public ICollection<Presenca> Presencas { get; set; } = new List<Presenca>();
-    public ICollection<PessoaFamilia> Familias { get; set; } = new List<PessoaFamilia>();
+    public int? FamiliaId { get; set; }
+    public Familia? Familia { get; set; }
 }

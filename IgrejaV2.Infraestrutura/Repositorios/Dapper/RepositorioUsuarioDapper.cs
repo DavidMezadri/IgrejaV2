@@ -1,20 +1,25 @@
+using Dapper;
 using IgrejaV2.Dominio.Entidades;
 using IgrejaV2.Dominio.Interfaces;
+using Npgsql;
 
 namespace IgrejaV2.Infraestrutura.Repositorios.Dapper
 {
-    public class RepositorioUsuarioDapper : IRepositorioUsuario
+    public class RepositorioUsuarioDapper : IgrejaV2.Infraestrutura.Repositorios.Base.RepositorioBaseDapper<Usuario>, IRepositorioUsuario
     {
-        private readonly string _connectionString;
-        public RepositorioUsuarioDapper(string connectionString)
-        {
-            _connectionString = connectionString;
-        }
+        protected override string NomeTabela => "usuarios";
 
-        public Task AdicionarAsync(Usuario entidade, CancellationToken ct = default) => throw new NotImplementedException();
-        public Task AtualizarAsync(Usuario entidade, CancellationToken ct = default) => throw new NotImplementedException();
-        public Task DeletarAsync(int id, CancellationToken ct = default) => throw new NotImplementedException();
-        public Task<Usuario?> ObterPorIdAsync(int id, CancellationToken ct = default) => throw new NotImplementedException();
-        public Task<IEnumerable<Usuario>> ObterTodosAsync(CancellationToken ct = default) => throw new NotImplementedException();
+        public RepositorioUsuarioDapper(string connectionString) : base(connectionString) { }
+
+        public async Task<Usuario?> ObterPorNomeUsuarioAsync(string nomeUsuario, CancellationToken ct = default)
+        {
+            var sql = @"
+                SELECT * FROM usuarios
+                WHERE nome_usuario = @NomeUsuario AND deletado = false";
+
+            using var conn = CriarConexao();
+            return await conn.QueryFirstOrDefaultAsync<Usuario>(
+                new CommandDefinition(sql, new { NomeUsuario = nomeUsuario }, cancellationToken: ct));
+        }
     }
 }
