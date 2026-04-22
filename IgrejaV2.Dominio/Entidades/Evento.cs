@@ -8,13 +8,11 @@ public class Evento : EntidadeBase
     public int TipoEventoId { get; set; }
     public TipoEvento? TipoEvento { get; set; }
 
-    public Usuario? CriadoPor { get; set; } // O Id agora vem da EntityBase (CriadoPorId)
-
     public DateTime DataInicio { get; set; }
     public DateTime? DataFim { get; set; }
 
     public string? Local { get; set; }
-    public string? Endereco { get; set; }
+    public Endereco? Endereco { get; set; }
 
     public int? CapacidadeMaxima { get; set; }
     public bool RequerInscricao { get; set; } = false;
