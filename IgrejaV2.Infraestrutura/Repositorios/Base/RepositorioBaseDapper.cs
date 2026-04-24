@@ -25,6 +25,11 @@ namespace IgrejaV2.Infraestrutura.Repositorios.Base
         /// </summary>
         protected virtual string ChavePrimaria => "Id";
 
+        static RepositorioBaseDapper()
+        {
+            DefaultTypeMap.MatchNamesWithUnderscores = true;
+        }
+
         // Tipos simples mapeáveis para colunas SQL — exclui navigation properties
         private static readonly HashSet<Type> TiposColuna = new()
         {
@@ -58,7 +63,7 @@ namespace IgrejaV2.Infraestrutura.Repositorios.Base
         /// <inheritdoc/>
         public async Task<T?> ObterPorIdAsync(int id, CancellationToken ct = default)
         {
-            var sql = $"""SELECT * FROM "{NomeTabela}" WHERE "{ChavePrimaria}" = @Id""";
+            var sql = $"""SELECT * FROM "{NomeTabela}" WHERE "{ToSnakeCase(ChavePrimaria)}" = @Id""";
             using var conn = CriarConexao();
             return await conn.QueryFirstOrDefaultAsync<T>(
                 new CommandDefinition(sql, new { Id = id }, cancellationToken: ct));
@@ -169,7 +174,7 @@ namespace IgrejaV2.Infraestrutura.Repositorios.Base
         /// <inheritdoc/>
         public async Task RemoverAsync(T entidade, CancellationToken ct = default)
         {
-            var sql = $"""DELETE FROM "{NomeTabela}" WHERE "{ChavePrimaria}" = @{ChavePrimaria}""";
+            var sql = $"""DELETE FROM "{NomeTabela}" WHERE "{ToSnakeCase(ChavePrimaria)}" = @{ChavePrimaria}""";
             var prop = ObterPropriedadePk();
             var parametros = new DynamicParameters();
             parametros.Add(ChavePrimaria, prop?.GetValue(entidade));
@@ -180,7 +185,7 @@ namespace IgrejaV2.Infraestrutura.Repositorios.Base
         /// <inheritdoc/>
         public async Task RemoverPorIdAsync(int id, CancellationToken ct = default)
         {
-            var sql = $"""DELETE FROM "{NomeTabela}" WHERE "{ChavePrimaria}" = @Id""";
+            var sql = $"""DELETE FROM "{NomeTabela}" WHERE "{ToSnakeCase(ChavePrimaria)}" = @Id""";
             using var conn = CriarConexao();
             var afetados = await conn.ExecuteAsync(
                 new CommandDefinition(sql, new { Id = id }, cancellationToken: ct));
@@ -234,7 +239,7 @@ namespace IgrejaV2.Infraestrutura.Repositorios.Base
         private string GerarSqlInsert()
         {
             var props = ObterPropriedadesMapeadas(incluirPk: false);
-            var colunas = string.Join(", ", props.Select(p => $"\"{p.Name}\""));
+            var colunas = string.Join(", ", props.Select(p => $"\"{ToSnakeCase(p.Name)}\""));
             var valores = string.Join(", ", props.Select(p => $"@{p.Name}"));
             return $"""INSERT INTO "{NomeTabela}" ({colunas}) VALUES ({valores})""";
         }
@@ -242,8 +247,8 @@ namespace IgrejaV2.Infraestrutura.Repositorios.Base
         private string GerarSqlUpdate()
         {
             var props = ObterPropriedadesMapeadas(incluirPk: false);
-            var set = string.Join(", ", props.Select(p => $"\"{p.Name}\" = @{p.Name}"));
-            return $"""UPDATE "{NomeTabela}" SET {set} WHERE "{ChavePrimaria}" = @{ChavePrimaria}""";
+            var set = string.Join(", ", props.Select(p => $"\"{ToSnakeCase(p.Name)}\" = @{p.Name}"));
+            return $"""UPDATE "{NomeTabela}" SET {set} WHERE "{ToSnakeCase(ChavePrimaria)}" = @{ChavePrimaria}""";
         }
 
         private DynamicParameters GerarParametros(T entidade, bool incluirPk = false)
@@ -271,6 +276,20 @@ namespace IgrejaV2.Infraestrutura.Repositorios.Base
             => TiposColuna.Contains(tipo)
                || tipo.IsEnum
                || (Nullable.GetUnderlyingType(tipo)?.IsEnum == true);
+
+        private static string ToSnakeCase(string input)
+        {
+            if (string.IsNullOrEmpty(input)) return input;
+            var builder = new System.Text.StringBuilder();
+            for (int i = 0; i < input.Length; i++)
+            {
+                var c = input[i];
+                if (char.IsUpper(c) && i > 0 && input[i - 1] != '_')
+                    builder.Append('_');
+                builder.Append(char.ToLower(c));
+            }
+            return builder.ToString();
+        }
     }
 }
 

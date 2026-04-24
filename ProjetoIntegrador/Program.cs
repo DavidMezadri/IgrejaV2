@@ -1,29 +1,47 @@
+using IgrejaV2.Infraestrutura;
+using IgrejaV2.Infraestrutura.DatabaseConfig;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-builder.Services.AddControllersWithViews();
+// 1. Configura Serviços da API
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+// 2. Registra toda a camada de Infraestrutura (EF, Dapper, Repositórios)
+builder.Services.AddInfraestrutura(builder.Configuration);
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
+// 3. Inicialização Automática do Banco de Dados
+// Isso executa o script 01_TabelasIniciais.sql no startup
+using (var scope = app.Services.CreateScope())
 {
-    app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
+    var inicializador = scope.ServiceProvider.GetRequiredService<IInicializadorBanco>();
+    try 
+    {
+        await inicializador.InicializarAsync();
+    }
+    catch (Exception ex)
+    {
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "Ocorreu um erro ao inicializar o banco de dados.");
+    }
+}
+
+// 4. Configura o Pipeline de Requisição (Middleware)
+if (app.Environment.IsDevelopment())
+{
+    // Habilita Swagger no modo Desenvolvimento
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "IgrejaV2 API v1");
+    });
 }
 
 app.UseHttpsRedirection();
-app.UseRouting();
-
 app.UseAuthorization();
-
-app.MapStaticAssets();
-
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}")
-    .WithStaticAssets();
-
+app.MapControllers();
 
 app.Run();

@@ -12,19 +12,19 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["ProjetoIntegrador/ProjetoIntegrador.csproj", "ProjetoIntegrador/"]
-RUN dotnet restore "./ProjetoIntegrador/ProjetoIntegrador.csproj"
+COPY ["ProjetoIntegrador/IgrejaV2.API.csproj", "ProjetoIntegrador/"]
+RUN dotnet restore "./ProjetoIntegrador/IgrejaV2.API.csproj"
 COPY . .
 WORKDIR "/src/ProjetoIntegrador"
-RUN dotnet build "./ProjetoIntegrador.csproj" -c $BUILD_CONFIGURATION -o /app/build
+RUN dotnet build "./IgrejaV2.API.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 # Esta fase é usada para publicar o projeto de serviço a ser copiado para a fase final
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./ProjetoIntegrador.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "./IgrejaV2.API.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 # Esta fase é usada na produção ou quando executada no VS no modo normal (padrão quando não está usando a configuração de Depuração)
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "ProjetoIntegrador.dll"]
+ENTRYPOINT ["dotnet", "IgrejaV2.API.dll"]
