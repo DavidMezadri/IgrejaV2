@@ -5,7 +5,8 @@
   <Project Path="IgrejaV2.Aplicacao/IgrejaV2.Aplicacao.csproj" />
   <Project Path="IgrejaV2.Dominio/IgrejaV2.Dominio.csproj" />
   <Project Path="IgrejaV2.Infraestrutura/IgrejaV2.Infraestrutura.csproj" />
-  <Project Path="ProjetoIntegrador/IgrejaV2.API.csproj" />
+  <Project Path="IgrejaV2.API/IgrejaV2.API.csproj" />
+  <Project Path="IgrejaV2.Testes/IgrejaV2.Testes.csproj" />
   <Project Path="docker-compose.dcproj">
     <Build />
   </Project>
