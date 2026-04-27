@@ -2,12 +2,16 @@
   <Folder Name="/Itens de Solução/">
     <File Path="Arquitetura.md" />
   </Folder>
+  <Project Path="IgrejaV2.API/IgrejaV2.API.csproj">
+    <Build Solution="Debug|*" Project="false" />
+  </Project>
   <Project Path="IgrejaV2.Aplicacao/IgrejaV2.Aplicacao.csproj" />
   <Project Path="IgrejaV2.Dominio/IgrejaV2.Dominio.csproj" />
   <Project Path="IgrejaV2.Infraestrutura/IgrejaV2.Infraestrutura.csproj" />
-  <Project Path="IgrejaV2.API/IgrejaV2.API.csproj" />
-  <Project Path="IgrejaV2.Testes/IgrejaV2.Testes.csproj" />
   <Project Path="docker-compose.dcproj">
     <Build />
+  </Project>
+  <Project Path="IgrejaV2.Testes/IgrejaV2.Testes.csproj">
+    <Build Solution="Debug|*" Project="false" />
   </Project>
 </Solution>
