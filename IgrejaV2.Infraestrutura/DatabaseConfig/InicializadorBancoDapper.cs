@@ -16,20 +16,27 @@ namespace IgrejaV2.Infraestrutura.DatabaseConfig
 
         public async Task InicializarAsync()
         {
-            using var conn = new NpgsqlConnection(_connectionString);
+            var scriptsDir = Path.Combine(AppContext.BaseDirectory, "Scripts");
+            if (!Directory.Exists(scriptsDir))
+                return;
 
-            var scriptPath = Path.Combine(AppContext.BaseDirectory, "Scripts", "01_TabelasIniciais.sql");
-            if (File.Exists(scriptPath))
+            var scripts = Directory.GetFiles(scriptsDir, "*.sql")
+                .OrderBy(f => f)
+                .ToList();
+
+            using var conn = new NpgsqlConnection(_connectionString);
+            await conn.OpenAsync();
+
+            foreach (var scriptPath in scripts)
             {
                 var script = await File.ReadAllTextAsync(scriptPath);
                 try
                 {
-                    await conn.OpenAsync();
                     await SqlMapper.ExecuteAsync(conn, script);
                 }
                 catch (PostgresException ex) when (ex.SqlState == "42P07")
                 {
-                    // Ignorar erro 42P07: "relation already exists" (Tabelas já foram criadas)
+                    // Ignorar: tabela já existe (script 01 em banco já inicializado)
                 }
             }
         }

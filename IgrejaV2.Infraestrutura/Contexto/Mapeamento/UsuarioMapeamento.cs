@@ -11,12 +11,18 @@ namespace IgrejaV2.Infraestrutura.Contexto.Mapeamento
             builder.ToTable("usuarios");
 
             builder.Property(u => u.NomeUsuario).HasColumnName("nome_usuario").IsRequired().HasMaxLength(150);
-            builder.Property(u => u.Senha).HasColumnName("senha").IsRequired().HasMaxLength(500); // Senhas hasheadas
+            builder.Property(u => u.Email).HasColumnName("email").IsRequired().HasMaxLength(200);
+            builder.Property(u => u.Senha).HasColumnName("senha").IsRequired().HasMaxLength(500);
             builder.Property(u => u.TipoUsuario).HasColumnName("tipo_usuario").IsRequired();
             builder.Property(u => u.PrimeiroAcesso).HasColumnName("primeiro_acesso").IsRequired().HasDefaultValue(true);
             builder.Property(u => u.UltimoLogin).HasColumnName("ultimo_login");
             builder.Property(u => u.IpUltimoLogin).HasColumnName("ip_ultimo_login").HasMaxLength(50);
+            builder.Property(u => u.TokenRecuperacaoSenha).HasColumnName("token_recuperacao_senha").HasMaxLength(500);
+            builder.Property(u => u.TokenRecuperacaoSenhaExpiracao).HasColumnName("token_recuperacao_senha_expiracao");
             builder.Property(u => u.PessoaId).HasColumnName("pessoa_id");
+
+            builder.HasIndex(u => u.Email).HasDatabaseName("idx_usuarios_email");
+            builder.HasIndex(u => u.NomeUsuario).IsUnique().HasDatabaseName("idx_usuarios_nome_usuario_unique");
 
             builder.HasOne(u => u.Pessoa)
                 .WithMany()

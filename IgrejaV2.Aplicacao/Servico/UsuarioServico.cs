@@ -1,6 +1,82 @@
-﻿namespace IgrejaV2.Aplicacao.Servico
+﻿using IgrejaV2.Aplicacao.DTOs.Usuarios;
+using IgrejaV2.Dominio.Entidades;
+using IgrejaV2.Dominio.Interfaces;
+using BC = BCrypt.Net.BCrypt;
+
+namespace IgrejaV2.Aplicacao.Servico;
+
+public class UsuarioServico(IRepositorioUsuario repositorio)
 {
-    public class UsuarioServico
+    public async Task<UsuarioResponseDto> CriarAsync(CriarUsuarioDto dto, CancellationToken ct = default)
     {
+        var nomeJaExiste = await repositorio.ExisteAsync(u => u.NomeUsuario == dto.NomeUsuario && !u.Deletado, ct);
+        if (nomeJaExiste)
+            throw new InvalidOperationException("Nome de usuário já está em uso.");
+
+        var emailJaExiste = await repositorio.ExisteAsync(u => u.Email == dto.Email && !u.Deletado, ct);
+        if (emailJaExiste)
+            throw new InvalidOperationException("E-mail já está cadastrado.");
+
+        var usuario = new Usuario
+        {
+            NomeUsuario = dto.NomeUsuario,
+            Email = dto.Email,
+            Senha = BC.HashPassword(dto.Senha),
+            TipoUsuario = dto.TipoUsuario,
+            PrimeiroAcesso = true
+        };
+
+        await repositorio.AdicionarAsync(usuario, ct);
+        await repositorio.SalvarAlteracoesAsync(ct);
+
+        return ToDto(usuario);
     }
+
+    public async Task<UsuarioResponseDto?> ObterPorIdAsync(int id, CancellationToken ct = default)
+    {
+        var usuario = await repositorio.ObterPorIdAsync(id, ct);
+        return usuario is null ? null : ToDto(usuario);
+    }
+
+    public async Task<IEnumerable<UsuarioResponseDto>> ListarTodosAsync(CancellationToken ct = default)
+    {
+        var usuarios = await repositorio.ListarTodosAsync(ct);
+        return usuarios.Select(ToDto);
+    }
+
+    public async Task<UsuarioResponseDto?> AtualizarAsync(int id, AtualizarUsuarioDto dto, CancellationToken ct = default)
+    {
+        var usuario = await repositorio.ObterPorIdAsync(id, ct);
+        if (usuario is null) return null;
+
+        usuario.NomeUsuario = dto.NomeUsuario;
+        usuario.TipoUsuario = dto.TipoUsuario;
+        usuario.DataAtualizacao = DateTime.UtcNow;
+
+        await repositorio.AtualizarAsync(usuario, ct);
+        await repositorio.SalvarAlteracoesAsync(ct);
+
+        return ToDto(usuario);
+    }
+
+    public async Task<bool> RemoverAsync(int id, CancellationToken ct = default)
+    {
+        var existe = await repositorio.ExisteAsync(u => u.Id == id, ct);
+        if (!existe) return false;
+
+        await repositorio.RemoverPorIdAsync(id, ct);
+        await repositorio.SalvarAlteracoesAsync(ct);
+        return true;
+    }
+
+    private static UsuarioResponseDto ToDto(Usuario u) => new()
+    {
+        Id = u.Id,
+        NomeUsuario = u.NomeUsuario,
+        Email = u.Email,
+        TipoUsuario = u.TipoUsuario,
+        PrimeiroAcesso = u.PrimeiroAcesso,
+        UltimoLogin = u.UltimoLogin,
+        DataCriacao = u.DataCriacao
+    };
 }
