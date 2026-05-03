@@ -9,6 +9,8 @@
     <DockerServiceUrl>{Scheme}://localhost:{ServicePort}/swagger</DockerServiceUrl>
     <DockerServiceName>api</DockerServiceName>
     <ProjectGuid>78a5e8e9-d7b4-4b5c-a81d-289d0f46f001</ProjectGuid>
+    <Configurations>Debug;Release</Configurations>
+    <Platforms>AnyCPU</Platforms>
   </PropertyGroup>
   <ItemGroup>
     <None Include="docker-compose.yml" />

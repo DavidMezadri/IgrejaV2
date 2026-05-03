@@ -15,5 +15,8 @@ namespace IgrejaV2.Infraestrutura.Repositorios
 
         public async Task<IEnumerable<Pessoa>> ObterPorFamiliaAsync(int familiaId, CancellationToken ct = default)
             => await _dbSet.AsNoTracking().Where(p => p.FamiliaId == familiaId).OrderBy(p => p.Nome).ToListAsync(ct);
+
+        public async Task<IEnumerable<Pessoa>> BuscarPorNomeAsync(string nome, CancellationToken ct = default)
+            => await _dbSet.AsNoTracking().Where(p => p.Nome.Contains(nome)).OrderBy(p => p.Nome).ToListAsync(ct);
     }
 }

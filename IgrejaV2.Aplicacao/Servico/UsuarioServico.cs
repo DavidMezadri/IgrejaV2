@@ -1,11 +1,12 @@
 ﻿using IgrejaV2.Aplicacao.DTOs.Usuarios;
 using IgrejaV2.Dominio.Entidades;
+using IgrejaV2.Dominio.Enums;
 using IgrejaV2.Dominio.Interfaces;
 using BC = BCrypt.Net.BCrypt;
 
 namespace IgrejaV2.Aplicacao.Servico;
 
-public class UsuarioServico(IRepositorioUsuario repositorio)
+public class UsuarioServico(IRepositorioUsuario repositorio, LogServico logServico)
 {
     public async Task<UsuarioResponseDto> CriarAsync(CriarUsuarioDto dto, CancellationToken ct = default)
     {
@@ -29,7 +30,17 @@ public class UsuarioServico(IRepositorioUsuario repositorio)
         await repositorio.AdicionarAsync(usuario, ct);
         await repositorio.SalvarAlteracoesAsync(ct);
 
-        return ToDto(usuario);
+        var usuarioDto = ToDto(usuario);
+
+        await logServico.RegistrarAsync(
+            AcaoLogEnum.Criacao,
+            nameof(Usuario),
+            usuario.Id,
+            descricao: $"Usuário criado: {usuario.NomeUsuario}",
+            dadosNovos: usuarioDto,
+            ct: ct);
+
+        return usuarioDto;
     }
 
     public async Task<UsuarioResponseDto?> ObterPorIdAsync(int id, CancellationToken ct = default)
@@ -49,6 +60,8 @@ public class UsuarioServico(IRepositorioUsuario repositorio)
         var usuario = await repositorio.ObterPorIdAsync(id, ct);
         if (usuario is null) return null;
 
+        var usuarioAntes = ToDto(usuario);
+
         usuario.NomeUsuario = dto.NomeUsuario;
         usuario.TipoUsuario = dto.TipoUsuario;
         usuario.DataAtualizacao = DateTime.UtcNow;
@@ -56,16 +69,38 @@ public class UsuarioServico(IRepositorioUsuario repositorio)
         await repositorio.AtualizarAsync(usuario, ct);
         await repositorio.SalvarAlteracoesAsync(ct);
 
-        return ToDto(usuario);
+        var usuarioDepois = ToDto(usuario);
+
+        await logServico.RegistrarAsync(
+            AcaoLogEnum.Edicao,
+            nameof(Usuario),
+            usuario.Id,
+            descricao: $"Usuário atualizado: {usuario.NomeUsuario}",
+            dadosAnteriores: usuarioAntes,
+            dadosNovos: usuarioDepois,
+            ct: ct);
+
+        return usuarioDepois;
     }
 
     public async Task<bool> RemoverAsync(int id, CancellationToken ct = default)
     {
-        var existe = await repositorio.ExisteAsync(u => u.Id == id, ct);
-        if (!existe) return false;
+        var usuario = await repositorio.ObterPorIdAsync(id, ct);
+        if (usuario is null) return false;
+
+        var usuarioDados = ToDto(usuario);
 
         await repositorio.RemoverPorIdAsync(id, ct);
         await repositorio.SalvarAlteracoesAsync(ct);
+
+        await logServico.RegistrarAsync(
+            AcaoLogEnum.Delecao,
+            nameof(Usuario),
+            id,
+            descricao: $"Usuário removido: {usuario.NomeUsuario}",
+            dadosAnteriores: usuarioDados,
+            ct: ct);
+
         return true;
     }
 

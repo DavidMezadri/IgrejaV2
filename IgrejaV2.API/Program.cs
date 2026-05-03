@@ -79,6 +79,7 @@ builder.Services.AddAuthorization();
 builder.Services.AddInfraestrutura(builder.Configuration);
 
 // 5. Registra serviços da camada de Aplicação
+builder.Services.AddScoped<LogServico>();
 builder.Services.AddScoped<UsuarioServico>();
 builder.Services.AddScoped<AuthServico>();
 builder.Services.AddScoped<PessoaServico>();
@@ -86,6 +87,8 @@ builder.Services.AddScoped<FamiliaServico>();
 builder.Services.AddScoped<EventoServico>();
 builder.Services.AddScoped<TipoEventoServico>();
 builder.Services.AddScoped<PresencaServico>();
+builder.Services.AddScoped<EnderecoServico>();
+builder.Services.AddScoped<PessoaEnderecoServico>();
 
 // 6. Registra serviços da API
 builder.Services.AddScoped<TokenServico>();

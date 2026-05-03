@@ -6,5 +6,6 @@ namespace IgrejaV2.Dominio.Interfaces
     {
         Task<IEnumerable<Pessoa>> ObterPorFamiliaAsync(int familiaId, CancellationToken ct = default);
         Task<IEnumerable<Pessoa>> ObterAtivosAsync(CancellationToken ct = default);
+        Task<IEnumerable<Pessoa>> BuscarPorNomeAsync(string nome, CancellationToken ct = default);
     }
 }
