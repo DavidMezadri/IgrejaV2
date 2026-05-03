@@ -1,10 +1,11 @@
 using IgrejaV2.Aplicacao.DTOs.Familias;
 using IgrejaV2.Dominio.Entidades;
+using IgrejaV2.Dominio.Enums;
 using IgrejaV2.Dominio.Interfaces;
 
 namespace IgrejaV2.Aplicacao.Servico;
 
-public class FamiliaServico(IRepositorioFamilia repositorio)
+public class FamiliaServico(IRepositorioFamilia repositorio, LogServico logServico)
 {
     public async Task<FamiliaResponseDto> CriarAsync(CriarFamiliaDto dto, CancellationToken ct = default)
     {
@@ -19,7 +20,17 @@ public class FamiliaServico(IRepositorioFamilia repositorio)
         await repositorio.AdicionarAsync(familia, ct);
         await repositorio.SalvarAlteracoesAsync(ct);
 
-        return ToDto(familia);
+        var familiaDto = ToDto(familia);
+
+        await logServico.RegistrarAsync(
+            AcaoLogEnum.Criacao,
+            nameof(Familia),
+            familia.Id,
+            descricao: $"Família criada: {familia.Nome}",
+            dadosNovos: familiaDto,
+            ct: ct);
+
+        return familiaDto;
     }
 
     public async Task<FamiliaResponseDto?> ObterPorIdAsync(int id, CancellationToken ct = default)
@@ -39,6 +50,8 @@ public class FamiliaServico(IRepositorioFamilia repositorio)
         var familia = await repositorio.ObterPorIdAsync(id, ct);
         if (familia is null) return null;
 
+        var familiaAntes = ToDto(familia);
+
         familia.Nome = dto.Nome;
         familia.ResponsavelId = dto.ResponsavelId;
         familia.Observacoes = dto.Observacoes;
@@ -48,16 +61,38 @@ public class FamiliaServico(IRepositorioFamilia repositorio)
         await repositorio.AtualizarAsync(familia, ct);
         await repositorio.SalvarAlteracoesAsync(ct);
 
-        return ToDto(familia);
+        var familiaDepois = ToDto(familia);
+
+        await logServico.RegistrarAsync(
+            AcaoLogEnum.Edicao,
+            nameof(Familia),
+            familia.Id,
+            descricao: $"Família atualizada: {familia.Nome}",
+            dadosAnteriores: familiaAntes,
+            dadosNovos: familiaDepois,
+            ct: ct);
+
+        return familiaDepois;
     }
 
     public async Task<bool> RemoverAsync(int id, CancellationToken ct = default)
     {
-        var existe = await repositorio.ExisteAsync(f => f.Id == id, ct);
-        if (!existe) return false;
+        var familia = await repositorio.ObterPorIdAsync(id, ct);
+        if (familia is null) return false;
+
+        var familiaDados = ToDto(familia);
 
         await repositorio.RemoverPorIdAsync(id, ct);
         await repositorio.SalvarAlteracoesAsync(ct);
+
+        await logServico.RegistrarAsync(
+            AcaoLogEnum.Delecao,
+            nameof(Familia),
+            id,
+            descricao: $"Família removida: {familia.Nome}",
+            dadosAnteriores: familiaDados,
+            ct: ct);
+
         return true;
     }
 

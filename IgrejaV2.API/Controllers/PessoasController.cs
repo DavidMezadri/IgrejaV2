@@ -47,6 +47,22 @@ public class PessoasController(PessoaServico servico) : ControllerBase
         return Ok(pessoas);
     }
 
+    /// <summary>Busca pessoas pelo nome.</summary>
+    /// <param name="nome">Nome ou parte do nome para buscar.</param>
+    /// <response code="200">Lista de pessoas encontradas.</response>
+    /// <response code="400">Parâmetro inválido.</response>
+    [HttpGet("buscar")]
+    [ProducesResponseType(typeof(IEnumerable<PessoaResponseDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> BuscarPorNome([FromQuery] string? nome, CancellationToken ct)
+    {
+        if (string.IsNullOrWhiteSpace(nome))
+            return BadRequest(new { mensagem = "O parâmetro 'nome' é obrigatório." });
+
+        var pessoas = await servico.BuscarPorNomeAsync(nome, ct);
+        return Ok(pessoas);
+    }
+
     /// <summary>Lista pessoas de uma família.</summary>
     /// <param name="familiaId">Identificador da família.</param>
     /// <response code="200">Lista de pessoas da família.</response>

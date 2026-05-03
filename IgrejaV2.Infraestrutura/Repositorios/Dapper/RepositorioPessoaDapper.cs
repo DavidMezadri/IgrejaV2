@@ -33,5 +33,17 @@ namespace IgrejaV2.Infraestrutura.Repositorios.Dapper
             return await conn.QueryAsync<Pessoa>(
                 new CommandDefinition(sql, new { FamiliaId = familiaId }, cancellationToken: ct));
         }
+
+        public async Task<IEnumerable<Pessoa>> BuscarPorNomeAsync(string nome, CancellationToken ct = default)
+        {
+            var sql = @"
+                SELECT * FROM pessoas
+                WHERE nome ILIKE @Nome AND deletado = false
+                ORDER BY nome";
+
+            using var conn = CriarConexao();
+            return await conn.QueryAsync<Pessoa>(
+                new CommandDefinition(sql, new { Nome = $"%{nome}%" }, cancellationToken: ct));
+        }
     }
 }

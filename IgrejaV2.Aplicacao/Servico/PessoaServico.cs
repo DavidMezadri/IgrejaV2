@@ -1,10 +1,11 @@
 using IgrejaV2.Aplicacao.DTOs.Pessoas;
 using IgrejaV2.Dominio.Entidades;
+using IgrejaV2.Dominio.Enums;
 using IgrejaV2.Dominio.Interfaces;
 
 namespace IgrejaV2.Aplicacao.Servico;
 
-public class PessoaServico(IRepositorioPessoa repositorio)
+public class PessoaServico(IRepositorioPessoa repositorio, LogServico logServico)
 {
     public async Task<PessoaResponseDto> CriarAsync(CriarPessoaDto dto, CancellationToken ct = default)
     {
@@ -26,7 +27,17 @@ public class PessoaServico(IRepositorioPessoa repositorio)
         await repositorio.AdicionarAsync(pessoa, ct);
         await repositorio.SalvarAlteracoesAsync(ct);
 
-        return ToDto(pessoa);
+        var pessoaDto = ToDto(pessoa);
+
+        await logServico.RegistrarAsync(
+            AcaoLogEnum.Criacao,
+            nameof(Pessoa),
+            pessoa.Id,
+            descricao: $"Pessoa criada: {pessoa.Nome}",
+            dadosNovos: pessoaDto,
+            ct: ct);
+
+        return pessoaDto;
     }
 
     public async Task<PessoaResponseDto?> ObterPorIdAsync(int id, CancellationToken ct = default)
@@ -53,10 +64,21 @@ public class PessoaServico(IRepositorioPessoa repositorio)
         return pessoas.Select(ToDto);
     }
 
+    public async Task<IEnumerable<PessoaResponseDto>> BuscarPorNomeAsync(string nome, CancellationToken ct = default)
+    {
+        if (string.IsNullOrWhiteSpace(nome))
+            return Enumerable.Empty<PessoaResponseDto>();
+
+        var pessoas = await repositorio.BuscarPorNomeAsync(nome, ct);
+        return pessoas.Select(ToDto);
+    }
+
     public async Task<PessoaResponseDto?> AtualizarAsync(int id, AtualizarPessoaDto dto, CancellationToken ct = default)
     {
         var pessoa = await repositorio.ObterPorIdAsync(id, ct);
         if (pessoa is null) return null;
+
+        var pessoaAntes = ToDto(pessoa);
 
         pessoa.Nome = dto.Nome;
         pessoa.DataNascimento = dto.DataNascimento;
@@ -74,16 +96,38 @@ public class PessoaServico(IRepositorioPessoa repositorio)
         await repositorio.AtualizarAsync(pessoa, ct);
         await repositorio.SalvarAlteracoesAsync(ct);
 
-        return ToDto(pessoa);
+        var pessoaDepois = ToDto(pessoa);
+
+        await logServico.RegistrarAsync(
+            AcaoLogEnum.Edicao,
+            nameof(Pessoa),
+            pessoa.Id,
+            descricao: $"Pessoa atualizada: {pessoa.Nome}",
+            dadosAnteriores: pessoaAntes,
+            dadosNovos: pessoaDepois,
+            ct: ct);
+
+        return pessoaDepois;
     }
 
     public async Task<bool> RemoverAsync(int id, CancellationToken ct = default)
     {
-        var existe = await repositorio.ExisteAsync(p => p.Id == id, ct);
-        if (!existe) return false;
+        var pessoa = await repositorio.ObterPorIdAsync(id, ct);
+        if (pessoa is null) return false;
+
+        var pessoaDados = ToDto(pessoa);
 
         await repositorio.RemoverPorIdAsync(id, ct);
         await repositorio.SalvarAlteracoesAsync(ct);
+
+        await logServico.RegistrarAsync(
+            AcaoLogEnum.Delecao,
+            nameof(Pessoa),
+            id,
+            descricao: $"Pessoa removida: {pessoa.Nome}",
+            dadosAnteriores: pessoaDados,
+            ct: ct);
+
         return true;
     }
 

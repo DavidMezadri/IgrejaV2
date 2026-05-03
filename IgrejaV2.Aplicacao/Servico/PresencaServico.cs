@@ -1,10 +1,11 @@
 using IgrejaV2.Aplicacao.DTOs.Presencas;
 using IgrejaV2.Dominio.Entidades;
+using IgrejaV2.Dominio.Enums;
 using IgrejaV2.Dominio.Interfaces;
 
 namespace IgrejaV2.Aplicacao.Servico;
 
-public class PresencaServico(IRepositorioPresenca repositorio)
+public class PresencaServico(IRepositorioPresenca repositorio, LogServico logServico)
 {
     public async Task<PresencaResponseDto> CriarAsync(CriarPresencaDto dto, CancellationToken ct = default)
     {
@@ -25,7 +26,17 @@ public class PresencaServico(IRepositorioPresenca repositorio)
         await repositorio.AdicionarAsync(presenca, ct);
         await repositorio.SalvarAlteracoesAsync(ct);
 
-        return ToDto(presenca);
+        var presencaDto = ToDto(presenca);
+
+        await logServico.RegistrarAsync(
+            AcaoLogEnum.Checkin,
+            nameof(Presenca),
+            presenca.Id,
+            descricao: $"Presença registrada - Evento {presenca.EventoId}, Pessoa {presenca.PessoaId}, Presente: {presenca.Presente}",
+            dadosNovos: presencaDto,
+            ct: ct);
+
+        return presencaDto;
     }
 
     public async Task<PresencaResponseDto?> ObterPorIdAsync(int id, CancellationToken ct = default)
@@ -51,6 +62,8 @@ public class PresencaServico(IRepositorioPresenca repositorio)
         var presenca = await repositorio.ObterPorIdAsync(id, ct);
         if (presenca is null) return null;
 
+        var presencaAntes = ToDto(presenca);
+
         presenca.Presente = dto.Presente;
         presenca.Observacao = dto.Observacao;
         presenca.DataAtualizacao = DateTime.UtcNow;
@@ -58,16 +71,38 @@ public class PresencaServico(IRepositorioPresenca repositorio)
         await repositorio.AtualizarAsync(presenca, ct);
         await repositorio.SalvarAlteracoesAsync(ct);
 
-        return ToDto(presenca);
+        var presencaDepois = ToDto(presenca);
+
+        await logServico.RegistrarAsync(
+            AcaoLogEnum.Edicao,
+            nameof(Presenca),
+            presenca.Id,
+            descricao: $"Presença atualizada - Evento {presenca.EventoId}, Pessoa {presenca.PessoaId}, Presente: {presenca.Presente}",
+            dadosAnteriores: presencaAntes,
+            dadosNovos: presencaDepois,
+            ct: ct);
+
+        return presencaDepois;
     }
 
     public async Task<bool> RemoverAsync(int id, CancellationToken ct = default)
     {
-        var existe = await repositorio.ExisteAsync(p => p.Id == id, ct);
-        if (!existe) return false;
+        var presenca = await repositorio.ObterPorIdAsync(id, ct);
+        if (presenca is null) return false;
+
+        var presencaDados = ToDto(presenca);
 
         await repositorio.RemoverPorIdAsync(id, ct);
         await repositorio.SalvarAlteracoesAsync(ct);
+
+        await logServico.RegistrarAsync(
+            AcaoLogEnum.Delecao,
+            nameof(Presenca),
+            id,
+            descricao: $"Presença removida - Evento {presenca.EventoId}, Pessoa {presenca.PessoaId}",
+            dadosAnteriores: presencaDados,
+            ct: ct);
+
         return true;
     }
 

@@ -1,22 +1,38 @@
 using System.Security.Cryptography;
 using IgrejaV2.Aplicacao.DTOs.Auth;
 using IgrejaV2.Dominio.Entidades;
+using IgrejaV2.Dominio.Enums;
 using IgrejaV2.Dominio.Interfaces;
 using BC = BCrypt.Net.BCrypt;
 
 namespace IgrejaV2.Aplicacao.Servico;
 
-public class AuthServico(IRepositorioUsuario repositorio)
+public class AuthServico(IRepositorioUsuario repositorio, LogServico logServico)
 {
     public async Task<Usuario?> ValidarCredenciaisAsync(LoginDto dto, CancellationToken ct = default)
     {
         var usuario = await repositorio.ObterPorNomeUsuarioAsync(dto.NomeUsuario, ct);
         if (usuario is null || !BC.Verify(dto.Senha, usuario.Senha))
+        {
+            await logServico.RegistrarAsync(
+                AcaoLogEnum.Login,
+                nameof(Usuario),
+                usuario?.Id ?? 0,
+                descricao: $"Tentativa de login falhada para usuário: {dto.NomeUsuario}",
+                ct: ct);
             return null;
+        }
 
         usuario.UltimoLogin = DateTime.UtcNow;
         await repositorio.AtualizarAsync(usuario, ct);
         await repositorio.SalvarAlteracoesAsync(ct);
+
+        await logServico.RegistrarAsync(
+            AcaoLogEnum.Login,
+            nameof(Usuario),
+            usuario.Id,
+            descricao: $"Login bem-sucedido: {usuario.NomeUsuario}",
+            ct: ct);
 
         return usuario;
     }
@@ -42,7 +58,15 @@ public class AuthServico(IRepositorioUsuario repositorio)
     {
         var usuario = await repositorio.ObterPorTokenRecuperacaoAsync(dto.Token, ct);
         if (usuario is null || usuario.TokenRecuperacaoSenhaExpiracao < DateTime.UtcNow)
+        {
+            await logServico.RegistrarAsync(
+                AcaoLogEnum.Edicao,
+                nameof(Usuario),
+                usuario?.Id ?? 0,
+                descricao: $"Tentativa de reset de senha com token inválido ou expirado",
+                ct: ct);
             return false;
+        }
 
         usuario.Senha = BC.HashPassword(dto.NovaSenha);
         usuario.TokenRecuperacaoSenha = null;
@@ -51,6 +75,13 @@ public class AuthServico(IRepositorioUsuario repositorio)
 
         await repositorio.AtualizarAsync(usuario, ct);
         await repositorio.SalvarAlteracoesAsync(ct);
+
+        await logServico.RegistrarAsync(
+            AcaoLogEnum.Edicao,
+            nameof(Usuario),
+            usuario.Id,
+            descricao: $"Senha resetada com sucesso para usuário: {usuario.NomeUsuario}",
+            ct: ct);
 
         return true;
     }

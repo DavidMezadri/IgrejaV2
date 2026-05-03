@@ -1,10 +1,11 @@
 using IgrejaV2.Aplicacao.DTOs.Eventos;
 using IgrejaV2.Dominio.Entidades;
+using IgrejaV2.Dominio.Enums;
 using IgrejaV2.Dominio.Interfaces;
 
 namespace IgrejaV2.Aplicacao.Servico;
 
-public class EventoServico(IRepositorioEvento repositorio)
+public class EventoServico(IRepositorioEvento repositorio, LogServico logServico)
 {
     public async Task<EventoResponseDto> CriarAsync(CriarEventoDto dto, CancellationToken ct = default)
     {
@@ -24,7 +25,17 @@ public class EventoServico(IRepositorioEvento repositorio)
         await repositorio.AdicionarAsync(evento, ct);
         await repositorio.SalvarAlteracoesAsync(ct);
 
-        return ToDto(evento);
+        var eventoDto = ToDto(evento);
+
+        await logServico.RegistrarAsync(
+            AcaoLogEnum.Criacao,
+            nameof(Evento),
+            evento.Id,
+            descricao: $"Evento criado: {evento.Nome} em {evento.DataInicio:dd/MM/yyyy}",
+            dadosNovos: eventoDto,
+            ct: ct);
+
+        return eventoDto;
     }
 
     public async Task<EventoResponseDto?> ObterPorIdAsync(int id, CancellationToken ct = default)
@@ -50,6 +61,8 @@ public class EventoServico(IRepositorioEvento repositorio)
         var evento = await repositorio.ObterPorIdAsync(id, ct);
         if (evento is null) return null;
 
+        var eventoAntes = ToDto(evento);
+
         evento.Nome = dto.Nome;
         evento.Descricao = dto.Descricao;
         evento.TipoEventoId = dto.TipoEventoId;
@@ -64,16 +77,38 @@ public class EventoServico(IRepositorioEvento repositorio)
         await repositorio.AtualizarAsync(evento, ct);
         await repositorio.SalvarAlteracoesAsync(ct);
 
-        return ToDto(evento);
+        var eventoDepois = ToDto(evento);
+
+        await logServico.RegistrarAsync(
+            AcaoLogEnum.Edicao,
+            nameof(Evento),
+            evento.Id,
+            descricao: $"Evento atualizado: {evento.Nome}",
+            dadosAnteriores: eventoAntes,
+            dadosNovos: eventoDepois,
+            ct: ct);
+
+        return eventoDepois;
     }
 
     public async Task<bool> RemoverAsync(int id, CancellationToken ct = default)
     {
-        var existe = await repositorio.ExisteAsync(e => e.Id == id, ct);
-        if (!existe) return false;
+        var evento = await repositorio.ObterPorIdAsync(id, ct);
+        if (evento is null) return false;
+
+        var eventoDados = ToDto(evento);
 
         await repositorio.RemoverPorIdAsync(id, ct);
         await repositorio.SalvarAlteracoesAsync(ct);
+
+        await logServico.RegistrarAsync(
+            AcaoLogEnum.Delecao,
+            nameof(Evento),
+            id,
+            descricao: $"Evento removido: {evento.Nome}",
+            dadosAnteriores: eventoDados,
+            ct: ct);
+
         return true;
     }
 
