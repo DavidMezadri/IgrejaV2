@@ -8,6 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
 // 1. Configura Serviços da API
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -51,6 +52,19 @@ builder.Services.AddSwaggerGen(c =>
             new List<string>()
         }
     });
+});
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("Frontend",
+        policy =>
+        {
+            policy
+                .WithOrigins("http://localhost:3000", "http://localhost:5173", "http://localhost:8080")
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowCredentials();
+        });
 });
 
 // 3. Autenticação JWT
@@ -119,8 +133,9 @@ if (app.Environment.IsDevelopment())
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "IgrejaV2 API v1");
     });
 }
-
-app.UseHttpsRedirection();
+app.UseCors("Frontend");
+app.UseRouting();
+//app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

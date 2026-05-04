@@ -27,7 +27,7 @@ public class AutenticacaoController(AuthServico authServico, TokenServico tokenS
     /// </remarks>
     /// <response code="200">Token JWT gerado com sucesso.</response>
     /// <response code="401">Credenciais inválidas.</response>
-    [HttpPost("login")]
+    [HttpPost("login")] 
     [ProducesResponseType(typeof(LoginResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> Login([FromBody] LoginDto dto, CancellationToken ct)
