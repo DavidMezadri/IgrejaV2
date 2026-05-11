@@ -18,6 +18,8 @@ namespace IgrejaV2.Infraestrutura.Contexto
         public DbSet<Pessoa> Pessoas                            => Set<Pessoa>();
         public DbSet<Presenca> Presencas                        => Set<Presenca>();
         public DbSet<TipoEvento> TiposEvento                    => Set<TipoEvento>();
+        public DbSet<Traducao> Traducoes                        => Set<Traducao>();
+        public DbSet<Versiculo> Versiculos                      => Set<Versiculo>();
         public DbSet<Usuario> Usuarios                          => Set<Usuario>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
