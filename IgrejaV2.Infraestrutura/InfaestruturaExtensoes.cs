@@ -37,6 +37,8 @@ namespace IgrejaV2.Infraestrutura
                 services.AddScoped<IRepositorioPessoaEndereco>(p => new Repositorios.Dapper.RepositorioPessoaEnderecoDapper(connectionString));
                 services.AddScoped<IRepositorioPresenca>(p       => new Repositorios.Dapper.RepositorioPresencaDapper(connectionString));
                 services.AddScoped<IRepositorioTipoEvento>(p     => new Repositorios.Dapper.RepositorioTipoEventoDapper(connectionString));
+                services.AddScoped<IRepositorioTraducao>(p       => new Repositorios.Dapper.RepositorioTraducaoDapper(connectionString));
+                services.AddScoped<IRepositorioVersiculo>(p      => new Repositorios.Dapper.RepositorioVerisculoDapper(connectionString));
                 services.AddScoped<IRepositorioUsuario>(p        => new Repositorios.Dapper.RepositorioUsuarioDapper(connectionString));
             }
             else
@@ -54,6 +56,8 @@ namespace IgrejaV2.Infraestrutura
                 services.AddScoped<IRepositorioPessoaEndereco, RepositorioPessoaEndereco>();
                 services.AddScoped<IRepositorioPresenca, RepositorioPresenca>();
                 services.AddScoped<IRepositorioTipoEvento, RepositorioTipoEvento>();
+                services.AddScoped<IRepositorioTraducao, RepositorioTraducao>();
+                services.AddScoped<IRepositorioVersiculo, RepositorioVersiculo>();
                 services.AddScoped<IRepositorioUsuario, RepositorioUsuario>();
             }
 
