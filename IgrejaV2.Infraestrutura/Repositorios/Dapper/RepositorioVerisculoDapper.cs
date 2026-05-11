@@ -1,24 +1,47 @@
+using Dapper;
 using IgrejaV2.Dominio.Entidades;
 using IgrejaV2.Dominio.Interfaces;
 
 namespace IgrejaV2.Infraestrutura.Repositorios.Dapper
 {
-    public class RepositorioVerisculoDapper(string connectionString) : IRepositorioVersiculo
+    public class RepositorioVerisculoDapper(string connectionString) : Base.RepositorioBaseDapper<Versiculo>(connectionString), IRepositorioVersiculo
     {
-        public Task AdicionarAsync(Versiculo entidade, CancellationToken ct = default) => Task.CompletedTask;
-        public Task AdicionarVariosAsync(IEnumerable<Versiculo> entidades, CancellationToken ct = default) => Task.CompletedTask;
-        public Task AtualizarAsync(Versiculo entidade, CancellationToken ct = default) => Task.CompletedTask;
-        public Task<int> ContarAsync(System.Linq.Expressions.Expression<Func<Versiculo, bool>>? predicado = null, CancellationToken ct = default) => Task.FromResult(0);
-        public Task<bool> ExisteAsync(System.Linq.Expressions.Expression<Func<Versiculo, bool>> predicado, CancellationToken ct = default) => Task.FromResult(false);
-        public Task<IEnumerable<Versiculo>> ListarAsync(System.Linq.Expressions.Expression<Func<Versiculo, bool>> predicado, CancellationToken ct = default) => Task.FromResult(Enumerable.Empty<Versiculo>());
-        public Task<IEnumerable<Versiculo>> ListarTodosAsync(CancellationToken ct = default) => Task.FromResult(Enumerable.Empty<Versiculo>());
-        public Task<Versiculo?> ObterPorIdAsync(int id, CancellationToken ct = default) => Task.FromResult<Versiculo?>(null);
-        public Task<Versiculo?> ObterPrimeiroAsync(System.Linq.Expressions.Expression<Func<Versiculo, bool>> predicado, CancellationToken ct = default) => Task.FromResult<Versiculo?>(null);
-        public Task<Versiculo?> ObterPorLivroCaptituloNumeroAsync(int livro, int capitulo, int numero, int traducaoId) => Task.FromResult<Versiculo?>(null);
-        public Task<IEnumerable<Versiculo>> ObterPorLivroAsync(int livro, int traducaoId) => Task.FromResult(Enumerable.Empty<Versiculo>());
-        public Task<IEnumerable<Versiculo>> ObterPorLivroCaptituloAsync(int livro, int capitulo, int traducaoId) => Task.FromResult(Enumerable.Empty<Versiculo>());
-        public Task RemoverAsync(Versiculo entidade, CancellationToken ct = default) => Task.CompletedTask;
-        public Task RemoverPorIdAsync(int id, CancellationToken ct = default) => Task.CompletedTask;
-        public Task<int> SalvarAlteracoesAsync(CancellationToken ct = default) => Task.FromResult(0);
+        protected override string NomeTabela => "versiculos";
+
+        public async Task<Versiculo?> ObterPorLivroCaptituloNumeroAsync(int livro, int capitulo, int numero, int traducaoId)
+        {
+            var sql = @"
+                SELECT * FROM versiculos
+                WHERE livro = @Livro AND capitulo = @Capitulo AND numero = @Numero AND traducao_id = @TraducaoId AND deletado = false
+                LIMIT 1";
+
+            using var conn = CriarConexao();
+            return await conn.QueryFirstOrDefaultAsync<Versiculo>(
+                new CommandDefinition(sql, new { Livro = livro, Capitulo = capitulo, Numero = numero, TraducaoId = traducaoId }));
+        }
+
+        public async Task<IEnumerable<Versiculo>> ObterPorLivroAsync(int livro, int traducaoId)
+        {
+            var sql = @"
+                SELECT * FROM versiculos
+                WHERE livro = @Livro AND traducao_id = @TraducaoId AND deletado = false
+                ORDER BY capitulo, numero";
+
+            using var conn = CriarConexao();
+            return await conn.QueryAsync<Versiculo>(
+                new CommandDefinition(sql, new { Livro = livro, TraducaoId = traducaoId }));
+        }
+
+        public async Task<IEnumerable<Versiculo>> ObterPorLivroCaptituloAsync(int livro, int capitulo, int traducaoId)
+        {
+            var sql = @"
+                SELECT * FROM versiculos
+                WHERE livro = @Livro AND capitulo = @Capitulo AND traducao_id = @TraducaoId AND deletado = false
+                ORDER BY numero";
+
+            using var conn = CriarConexao();
+            return await conn.QueryAsync<Versiculo>(
+                new CommandDefinition(sql, new { Livro = livro, Capitulo = capitulo, TraducaoId = traducaoId }));
+        }
     }
 }
