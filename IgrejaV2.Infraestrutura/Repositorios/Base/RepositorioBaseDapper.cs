@@ -133,25 +133,32 @@ namespace IgrejaV2.Infraestrutura.Repositorios.Base
         /// <inheritdoc/>
         public async Task AdicionarAsync(T entidade, CancellationToken ct = default)
         {
-            var sql = GerarSqlInsert();
+            var sql = GerarSqlInsert() + $" RETURNING \"{ToSnakeCase(ChavePrimaria)}\"";
             var parametros = GerarParametros(entidade);
             using var conn = CriarConexao();
-            await conn.ExecuteAsync(new CommandDefinition(sql, parametros, cancellationToken: ct));
+            var id = await conn.QuerySingleAsync<int>(new CommandDefinition(sql, parametros, cancellationToken: ct));
+
+            var pkProp = ObterPropriedadePk();
+            if (pkProp != null)
+                pkProp.SetValue(entidade, id);
         }
 
         /// <inheritdoc/>
         public async Task AdicionarVariosAsync(IEnumerable<T> entidades, CancellationToken ct = default)
         {
-            var sql = GerarSqlInsert();
+            var sql = GerarSqlInsert() + $" RETURNING \"{ToSnakeCase(ChavePrimaria)}\"";
             using var conn = CriarConexao();
             conn.Open();
             using var transacao = conn.BeginTransaction();
             try
             {
+                var pkProp = ObterPropriedadePk();
                 foreach (var entidade in entidades)
                 {
                     var parametros = GerarParametros(entidade);
-                    await conn.ExecuteAsync(new CommandDefinition(sql, parametros, transacao, cancellationToken: ct));
+                    var id = await conn.QuerySingleAsync<int>(new CommandDefinition(sql, parametros, transacao, cancellationToken: ct));
+                    if (pkProp != null)
+                        pkProp.SetValue(entidade, id);
                 }
                 transacao.Commit();
             }
