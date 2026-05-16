@@ -43,11 +43,6 @@ public class FamiliaServico(IRepositorioFamilia repositorio, LogServico logServi
     public async Task<FamiliaResponseDto?> ObterPorIdAsync(int id, CancellationToken ct = default)
     {
         var familia = await repositorio.ObterComMembrosAsync(id, ct);
-
-        Console.WriteLine($"Familia: {familia?.Nome}");
-        Console.WriteLine($"Responsavel: {familia?.Responsavel?.Nome}");
-        Console.WriteLine($"Membros: {familia?.Membros?.Count}");
-
         return familia is null ? null : ToDtoComMembros(familia);
     }
 
@@ -64,7 +59,7 @@ public class FamiliaServico(IRepositorioFamilia repositorio, LogServico logServi
 
         var nomeJaExiste = await repositorio.ExisteAsync(u => u.Nome == dto.Nome && u.Ativo, ct);
 
-        if (nomeJaExiste)
+        if (nomeJaExiste && familia.Nome != dto.Nome)
             throw new InvalidOperationException("Família já existente.");
 
         var familiaAntes = ToDto(familia);
