@@ -9,6 +9,13 @@ public class FamiliaServico(IRepositorioFamilia repositorio, LogServico logServi
 {
     public async Task<FamiliaResponseDto> CriarAsync(CriarFamiliaDto dto, CancellationToken ct = default)
     {
+
+        var nomeJaExiste = await repositorio.ExisteAsync(u => u.Nome == dto.Nome && u.Ativo, ct);
+
+        if (nomeJaExiste)
+            throw new InvalidOperationException("Família já existente.");
+
+
         var familia = new Familia
         {
             Nome = dto.Nome,
@@ -36,19 +43,29 @@ public class FamiliaServico(IRepositorioFamilia repositorio, LogServico logServi
     public async Task<FamiliaResponseDto?> ObterPorIdAsync(int id, CancellationToken ct = default)
     {
         var familia = await repositorio.ObterComMembrosAsync(id, ct);
+
+        Console.WriteLine($"Familia: {familia?.Nome}");
+        Console.WriteLine($"Responsavel: {familia?.Responsavel?.Nome}");
+        Console.WriteLine($"Membros: {familia?.Membros?.Count}");
+
         return familia is null ? null : ToDtoComMembros(familia);
     }
 
     public async Task<IEnumerable<FamiliaResponseDto>> ListarTodosAsync(CancellationToken ct = default)
     {
         var familias = await repositorio.ListarTodosAsync(ct);
-        return familias.Select(ToDto);
+        return familias.Select(ToDtoComMembros);
     }
 
     public async Task<FamiliaResponseDto?> AtualizarAsync(int id, AtualizarFamiliaDto dto, CancellationToken ct = default)
     {
         var familia = await repositorio.ObterPorIdAsync(id, ct);
         if (familia is null) return null;
+
+        var nomeJaExiste = await repositorio.ExisteAsync(u => u.Nome == dto.Nome && u.Ativo, ct);
+
+        if (nomeJaExiste)
+            throw new InvalidOperationException("Família já existente.");
 
         var familiaAntes = ToDto(familia);
 
@@ -82,7 +99,10 @@ public class FamiliaServico(IRepositorioFamilia repositorio, LogServico logServi
 
         var familiaDados = ToDto(familia);
 
-        await repositorio.RemoverPorIdAsync(id, ct);
+        familia.Ativo = false;
+        familia.DataAtualizacao = DateTime.UtcNow;
+
+        await repositorio.AtualizarAsync(familia, ct);
         await repositorio.SalvarAlteracoesAsync(ct);
 
         await logServico.RegistrarAsync(
@@ -117,6 +137,13 @@ public class FamiliaServico(IRepositorioFamilia repositorio, LogServico logServi
         Observacoes = f.Observacoes,
         Ativo = f.Ativo,
         TotalMembros = f.Membros.Count,
-        DataCriacao = f.DataCriacao
+        DataCriacao = f.DataCriacao,
+        Membros = f.Membros.Select(m => new MembroDto
+        {
+            Id = m.Id,
+            Nome = m.Nome,
+            Email = m.Email,
+            Telefone = m.Telefone
+        }).ToList()
     };
 }

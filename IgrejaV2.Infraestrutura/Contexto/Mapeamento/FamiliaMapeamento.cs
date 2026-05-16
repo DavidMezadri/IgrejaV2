@@ -26,6 +26,8 @@ namespace IgrejaV2.Infraestrutura.Contexto.Mapeamento
                 .HasForeignKey(p => p.FamiliaId)
                 .HasConstraintName("fk_pessoas_familias_familia_id")
                 .OnDelete(DeleteBehavior.SetNull);
+
+            builder.HasIndex(u => u.Nome).IsUnique().HasDatabaseName("idx_nome_familia_unique");
         }
     }
 }

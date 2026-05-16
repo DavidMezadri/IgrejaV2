@@ -61,7 +61,7 @@ namespace IgrejaV2.Infraestrutura.Repositorios.Base
         // ── Consultas ────────────────────────────────────────────────────────────
 
         /// <inheritdoc/>
-        public async Task<T?> ObterPorIdAsync(int id, CancellationToken ct = default)
+        public virtual async Task<T?> ObterPorIdAsync(int id, CancellationToken ct = default)
         {
             var sql = $"""SELECT * FROM "{NomeTabela}" WHERE "{ToSnakeCase(ChavePrimaria)}" = @Id""";
             using var conn = CriarConexao();
@@ -81,7 +81,7 @@ namespace IgrejaV2.Infraestrutura.Repositorios.Base
         }
 
         /// <inheritdoc/>
-        public async Task<IEnumerable<T>> ListarTodosAsync(CancellationToken ct = default)
+        public virtual async Task<IEnumerable<T>> ListarTodosAsync(CancellationToken ct = default)
         {
             var sql = $"""SELECT * FROM "{NomeTabela}" """;
             using var conn = CriarConexao();
@@ -192,10 +192,12 @@ namespace IgrejaV2.Infraestrutura.Repositorios.Base
         /// <inheritdoc/>
         public async Task RemoverPorIdAsync(int id, CancellationToken ct = default)
         {
-            var sql = $"""DELETE FROM "{NomeTabela}" WHERE "{ToSnakeCase(ChavePrimaria)}" = @Id""";
+            var sql = $"""UPDATE "{NomeTabela}" SET "deletado" = true, "data_delecao" = @DataDelecao WHERE "{ToSnakeCase(ChavePrimaria)}" = @Id""";
             using var conn = CriarConexao();
-            var afetados = await conn.ExecuteAsync(
-                new CommandDefinition(sql, new { Id = id }, cancellationToken: ct));
+
+            var afetados = 
+                await conn.ExecuteAsync(new CommandDefinition(sql, new { Id = id, DataDelecao = DateTime.UtcNow }, cancellationToken: ct));
+            
 
             if (afetados == 0)
                 throw new KeyNotFoundException($"Entidade do tipo {typeof(T).Name} com id {id} não foi encontrada.");
@@ -284,7 +286,7 @@ namespace IgrejaV2.Infraestrutura.Repositorios.Base
                || tipo.IsEnum
                || (Nullable.GetUnderlyingType(tipo)?.IsEnum == true);
 
-        private static string ToSnakeCase(string input)
+        protected static string ToSnakeCase(string input)
         {
             if (string.IsNullOrEmpty(input)) return input;
             var builder = new System.Text.StringBuilder();

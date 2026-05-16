@@ -25,7 +25,8 @@ namespace IgrejaV2.Infraestrutura.Contexto.Mapeamento
 
 
             builder.Property(p => p.Ativo).HasColumnName("ativo").IsRequired();
-            builder.HasOne(p => p.Familia).WithMany(f => f.Membros).HasForeignKey(p => p.FamiliaId).OnDelete(DeleteBehavior.SetNull);
+            builder.Property(p => p.FamiliaId).HasColumnName("familia_id");
+            // builder.HasOne(p => p.Familia).WithMany(f => f.Membros).HasForeignKey(p => p.FamiliaId).OnDelete(DeleteBehavior.SetNull);
         }
     }
 }

@@ -23,7 +23,7 @@ namespace IgrejaV2.Infraestrutura.Repositorios.Base
         // ── Consultas ────────────────────────────────────────────────────────────
 
         /// <inheritdoc/>
-        public async Task<T?> ObterPorIdAsync(int id, CancellationToken ct = default)
+        public virtual async Task<T?> ObterPorIdAsync(int id, CancellationToken ct = default)
             => await _dbSet.FindAsync([id], ct);
 
         /// <inheritdoc/>

@@ -10,4 +10,13 @@ public class FamiliaResponseDto
     public bool Ativo { get; set; }
     public int TotalMembros { get; set; }
     public DateTime DataCriacao { get; set; }
+    public List<MembroDto> Membros { get; set; } = new();
+}
+
+public class MembroDto
+{
+    public int Id { get; set; }
+    public string Nome { get; set; } = string.Empty;
+    public string? Email { get; set; }
+    public string? Telefone { get; set; }
 }
