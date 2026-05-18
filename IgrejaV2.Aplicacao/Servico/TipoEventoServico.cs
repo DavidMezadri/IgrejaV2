@@ -9,6 +9,15 @@ public class TipoEventoServico(IRepositorioTipoEvento repositorio, LogServico lo
 {
     public async Task<TipoEventoResponseDto> CriarAsync(CriarTipoEventoDto dto, CancellationToken ct = default)
     {
+
+        var nomeJaExiste = await repositorio.ExisteAsync(u => u.Nome == dto.Nome && u.Ativo, ct);
+
+        if (nomeJaExiste)
+            throw new InvalidOperationException("Tipo já existente.");
+
+        if (dto.PublicoAlvo.HasValue && !Enum.IsDefined(typeof(PublicoAlvoEnum), dto.PublicoAlvo.Value))
+            throw new InvalidOperationException("Público alvo inválido.");
+
         var tipo = new TipoEvento
         {
             Nome = dto.Nome,
@@ -51,6 +60,14 @@ public class TipoEventoServico(IRepositorioTipoEvento repositorio, LogServico lo
         var tipo = await repositorio.ObterPorIdAsync(id, ct);
         if (tipo is null) return null;
 
+        var nomeJaExiste = await repositorio.ExisteAsync(u => u.Nome == dto.Nome && u.Ativo, ct);
+
+        if (nomeJaExiste && dto.Nome != tipo.Nome)
+            throw new InvalidOperationException("Tipo já existente.");
+
+        if (dto.PublicoAlvo.HasValue && !Enum.IsDefined(typeof(PublicoAlvoEnum), dto.PublicoAlvo.Value))
+            throw new InvalidOperationException("Público alvo inválido.");
+
         var tipoAntes = ToDto(tipo);
 
         tipo.Nome = dto.Nome;
@@ -84,7 +101,10 @@ public class TipoEventoServico(IRepositorioTipoEvento repositorio, LogServico lo
 
         var tipoDados = ToDto(tipo);
 
-        await repositorio.RemoverPorIdAsync(id, ct);
+        tipo.Ativo = false;
+        tipo.Desativar();
+
+        await repositorio.AtualizarAsync(tipo, ct);
         await repositorio.SalvarAlteracoesAsync(ct);
 
         await logServico.RegistrarAsync(
@@ -106,6 +126,6 @@ public class TipoEventoServico(IRepositorioTipoEvento repositorio, LogServico lo
         PublicoAlvo = t.PublicoAlvo,
         RequerPresenca = t.RequerPresenca,
         Ativo = t.Ativo,
-        DataCriacao = t.DataCriacao
+        //DataCriacao = t.DataCriacao
     };
 }

@@ -13,10 +13,35 @@ namespace IgrejaV2.Infraestrutura.Repositorios.Dapper
 
         public async Task<IEnumerable<TipoEvento>> ObterAtivosAsync(CancellationToken ct = default)
         {
-            var sql = @"
-                SELECT * FROM tipos_evento
+            var sql = $@"
+                SELECT id, nome, descricao, publico_alvo, requer_presenca
+                FROM {NomeTabela}
                 WHERE ativo = true AND deletado = false
                 ORDER BY nome";
+
+            using var conn = CriarConexao();
+            return await conn.QueryAsync<TipoEvento>(new CommandDefinition(sql, cancellationToken: ct));
+        }
+
+        public override async Task<TipoEvento?> ObterPorIdAsync(int id, CancellationToken ct = default)
+        {
+            var sql = @$"
+                        SELECT id, nome, descricao, publico_alvo, requer_presenca, ativo
+                        FROM {NomeTabela}
+                        WHERE  id = @Id";
+
+            using var conn = CriarConexao();
+            return await conn.QueryFirstOrDefaultAsync<TipoEvento?>(
+                new CommandDefinition(sql, new { Id = id }, cancellationToken: ct));
+        }
+
+        public override async Task<IEnumerable<TipoEvento>> ListarTodosAsync(CancellationToken ct = default)
+        {
+            var sql = @$"
+                        SELECT id, nome, descricao, publico_alvo, requer_presenca, ativo
+                        FROM {NomeTabela}
+                        WHERE deletado = false
+                        ORDER BY nome asc";
 
             using var conn = CriarConexao();
             return await conn.QueryAsync<TipoEvento>(new CommandDefinition(sql, cancellationToken: ct));

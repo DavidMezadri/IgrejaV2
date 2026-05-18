@@ -95,7 +95,7 @@ public class FamiliaServico(IRepositorioFamilia repositorio, LogServico logServi
         var familiaDados = ToDto(familia);
 
         familia.Ativo = false;
-        familia.DataAtualizacao = DateTime.UtcNow;
+        familia.Desativar();
 
         await repositorio.AtualizarAsync(familia, ct);
         await repositorio.SalvarAlteracoesAsync(ct);

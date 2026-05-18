@@ -13,12 +13,12 @@ namespace IgrejaV2.Infraestrutura.Repositorios.Dapper
 
         public override async Task<IEnumerable<Familia>> ListarTodosAsync(CancellationToken ct = default)
         {
-            var sql = @"
+            var sql = $@"
                         SELECT
                             f.id, f.nome, f.responsavel_id, f.ativo, f.observacoes,
                             r.id, r.nome,
                             p.id, p.nome, p.email, p.telefone, p.ativo, p.familia_id
-                        FROM familias f
+                        FROM {NomeTabela} f
                         LEFT JOIN pessoas r ON r.id = f.responsavel_id AND r.deletado = false
                         LEFT JOIN pessoas p ON p.familia_id = f.id AND p.deletado = false
                         WHERE f.deletado = false";
@@ -48,11 +48,11 @@ namespace IgrejaV2.Infraestrutura.Repositorios.Dapper
 
         public override async Task<Familia?> ObterPorIdAsync(int id, CancellationToken ct = default)
         {
-            var sql = @"
+            var sql = @$"
                 SELECT
                     f.id, f.nome, f.responsavel_id, f.ativo, f.observacoes,
                     p.id, p.nome
-                FROM familias f
+                FROM {NomeTabela} f
                 LEFT JOIN pessoas p ON p.familia_id = f.id AND p.deletado = false
                 WHERE f.id = @Id AND f.deletado = false";
 
@@ -74,12 +74,12 @@ namespace IgrejaV2.Infraestrutura.Repositorios.Dapper
 
         public async Task<Familia?> ObterComMembrosAsync(int id, CancellationToken ct = default)
         {
-            var sql = @"
+            var sql = $@"
                     SELECT
                         f.id, f.nome, f.responsavel_id, f.ativo, f.observacoes,
                         r.id, r.nome,
                         p.id, p.nome, p.email, p.telefone, p.ativo, p.familia_id
-                    FROM familias f
+                    FROM {NomeTabela} f
                     LEFT JOIN pessoas r ON r.id = f.responsavel_id AND r.deletado = false
                     LEFT JOIN pessoas p ON p.familia_id = f.id AND p.deletado = false
                     WHERE f.id = @Id AND f.deletado = false";

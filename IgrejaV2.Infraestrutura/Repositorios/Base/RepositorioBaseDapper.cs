@@ -179,7 +179,7 @@ namespace IgrejaV2.Infraestrutura.Repositorios.Base
         }
 
         /// <inheritdoc/>
-        public async Task RemoverAsync(T entidade, CancellationToken ct = default)
+        public virtual async Task RemoverAsync(T entidade, CancellationToken ct = default)
         {
             var sql = $"""DELETE FROM "{NomeTabela}" WHERE "{ToSnakeCase(ChavePrimaria)}" = @{ChavePrimaria}""";
             var prop = ObterPropriedadePk();
