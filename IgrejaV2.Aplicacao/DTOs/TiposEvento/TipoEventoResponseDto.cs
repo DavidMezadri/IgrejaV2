@@ -10,5 +10,5 @@ public class TipoEventoResponseDto
     public PublicoAlvoEnum? PublicoAlvo { get; set; }
     public bool RequerPresenca { get; set; }
     public bool Ativo { get; set; }
-    public DateTime DataCriacao { get; set; }
+    //public DateTime DataCriacao { get; set; }
 }
