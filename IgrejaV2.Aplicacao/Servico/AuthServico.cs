@@ -7,7 +7,7 @@ using BC = BCrypt.Net.BCrypt;
 
 namespace IgrejaV2.Aplicacao.Servico;
 
-public class AuthServico(IRepositorioUsuario repositorio, LogServico logServico)
+public class AuthServico(IRepositorioUsuario repositorio, LogServico logServico, IEmailServico emailServico)
 {
     public async Task<Usuario?> ValidarCredenciaisAsync(LoginDto dto, CancellationToken ct = default)
     {
@@ -46,10 +46,15 @@ public class AuthServico(IRepositorioUsuario repositorio, LogServico logServico)
         var token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(48))
             .Replace("+", "-").Replace("/", "_").Replace("=", "");
 
+
+
         usuario.TokenRecuperacaoSenha = token;
         usuario.TokenRecuperacaoSenhaExpiracao = DateTime.UtcNow.AddHours(2);
         await repositorio.AtualizarAsync(usuario, ct);
         await repositorio.SalvarAlteracoesAsync(ct);
+
+        var link = $"https://localhost:5001/redefinir-senha?token={token}";
+        await emailServico.EnviarRecuperacaoSenhaAsync(usuario.Email, link, ct);
 
         return token;
     }

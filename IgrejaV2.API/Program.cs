@@ -1,10 +1,11 @@
-using System.Text;
-using IgrejaV2.Aplicacao.Servico;
 using IgrejaV2.API.Servicos;
+using IgrejaV2.Aplicacao.Servico;
+using IgrejaV2.Dominio.Interfaces;
 using IgrejaV2.Infraestrutura;
 using IgrejaV2.Infraestrutura.DatabaseConfig;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -108,6 +109,10 @@ builder.Services.AddScoped<VerisculoServico>();
 
 // 6. Registra serviços da API
 builder.Services.AddScoped<TokenServico>();
+
+var emailConfig = builder.Configuration.GetSection("Email").Get<EmailConfig>() ?? new EmailConfig();
+builder.Services.AddSingleton(emailConfig);
+builder.Services.AddScoped<IEmailServico, EmailServico>();
 
 var app = builder.Build();
 
