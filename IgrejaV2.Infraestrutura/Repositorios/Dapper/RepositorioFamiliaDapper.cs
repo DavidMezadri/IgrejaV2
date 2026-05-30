@@ -106,5 +106,17 @@ namespace IgrejaV2.Infraestrutura.Repositorios.Dapper
 
             return familiaDict.Values.FirstOrDefault();
         }
+
+        public async Task<IEnumerable<Familia>> BuscarPorNomeAsync(string nome, CancellationToken ct = default)
+        {
+            var sql = @"
+                SELECT * FROM familias
+                WHERE nome ILIKE @Nome AND deletado = false
+                ORDER BY nome";
+
+            using var conn = CriarConexao();
+            return await conn.QueryAsync<Familia>(
+                new CommandDefinition(sql, new { Nome = $"%{nome}%" }, cancellationToken: ct));
+        }
     }
 }

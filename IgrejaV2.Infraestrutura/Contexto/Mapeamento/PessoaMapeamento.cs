@@ -26,6 +26,8 @@ namespace IgrejaV2.Infraestrutura.Contexto.Mapeamento
 
             builder.Property(p => p.Ativo).HasColumnName("ativo").IsRequired();
             builder.Property(p => p.FamiliaId).HasColumnName("familia_id");
+            // FK relationship commented out - constraint exists in database via SQL script with SetNull behavior.
+            // Pessoas podem existir sem família (FamiliaId nullable). Validação de existência da família é feita no serviço.
             // builder.HasOne(p => p.Familia).WithMany(f => f.Membros).HasForeignKey(p => p.FamiliaId).OnDelete(DeleteBehavior.SetNull);
         }
     }

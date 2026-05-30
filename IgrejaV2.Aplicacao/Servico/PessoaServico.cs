@@ -5,10 +5,20 @@ using IgrejaV2.Dominio.Interfaces;
 
 namespace IgrejaV2.Aplicacao.Servico;
 
-public class PessoaServico(IRepositorioPessoa repositorio, LogServico logServico)
+public class PessoaServico(IRepositorioPessoa repositorio, IRepositorioFamilia repositorioFamilia, LogServico logServico)
 {
     public async Task<PessoaResponseDto> CriarAsync(CriarPessoaDto dto, CancellationToken ct = default)
     {
+
+        if (string.IsNullOrEmpty(dto.Nome))
+                throw new InvalidOperationException($"É necessário cadastrar um nome para pessoa!");
+
+        if (string.IsNullOrEmpty(dto.Email))
+            throw new InvalidOperationException($"É necessário cadastrar um E-mail para pessoa!");
+
+        if (!dto.DataNascimento.HasValue || dto.DataNascimento == DateTime.MinValue)
+            throw new InvalidOperationException($"É necessário cadastrar a data que se tornou membro!");
+
         var pessoa = new Pessoa
         {
             Nome = dto.Nome,
@@ -77,6 +87,15 @@ public class PessoaServico(IRepositorioPessoa repositorio, LogServico logServico
     {
         var pessoa = await repositorio.ObterPorIdAsync(id, ct);
         if (pessoa is null) return null;
+
+        // Valida FamiliaId antes de atualizar (aplicação valida, não depende de erro do banco)
+        // Funciona tanto com EF Core quanto Dapper
+        if (dto.FamiliaId.HasValue)
+        {
+            var familiaExiste = await repositorioFamilia.ObterPorIdAsync(dto.FamiliaId.Value, ct);
+            if (familiaExiste is null)
+                throw new InvalidOperationException($"A família com ID {dto.FamiliaId} não existe.");
+        }
 
         var pessoaAntes = ToDto(pessoa);
 
