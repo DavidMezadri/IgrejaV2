@@ -19,6 +19,15 @@ public class PessoaServico(IRepositorioPessoa repositorio, IRepositorioFamilia r
         if (!dto.DataNascimento.HasValue || dto.DataNascimento == DateTime.MinValue)
             throw new InvalidOperationException($"É necessário cadastrar a data que se tornou membro!");
 
+        // Valida FamiliaId antes de inserir (aplicação valida, não depende de erro do banco)
+        // Funciona tanto com EF Core quanto Dapper
+        if (dto.FamiliaId.HasValue)
+        {
+            var familiaExiste = await repositorioFamilia.ObterPorIdAsync(dto.FamiliaId.Value, ct);
+            if (familiaExiste is null)
+                throw new InvalidOperationException($"A família com ID {dto.FamiliaId} não existe.");
+        }
+
         var pessoa = new Pessoa
         {
             Nome = dto.Nome,

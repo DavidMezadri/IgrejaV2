@@ -11,7 +11,8 @@ public class UsuarioServicoTests
     private static UsuarioServico CriarServico(out RepositorioUsuarioEmMemoria repositorio)
     {
         repositorio = new RepositorioUsuarioEmMemoria();
-        return new UsuarioServico(repositorio);
+        var logServico = new LogServico(new RepositorioLogEmMemoria());
+        return new UsuarioServico(repositorio, logServico);
     }
 
     [Fact]
@@ -23,6 +24,7 @@ public class UsuarioServicoTests
         {
             NomeUsuario = "joao",
             Senha = "senha123",
+            Email = "joao@example.com",
             TipoUsuario = TipoUsuarioEnum.Membro
         });
 
@@ -36,8 +38,18 @@ public class UsuarioServicoTests
     {
         var servico = CriarServico(out _);
 
-        var u1 = await servico.CriarAsync(new CriarUsuarioDto { NomeUsuario = "joao", Senha = "a" });
-        var u2 = await servico.CriarAsync(new CriarUsuarioDto { NomeUsuario = "maria", Senha = "b" });
+        var u1 = await servico.CriarAsync(new CriarUsuarioDto
+        {
+            NomeUsuario = "joao",
+            Senha = "a",
+            Email = "joao@example.com"
+        });
+        var u2 = await servico.CriarAsync(new CriarUsuarioDto
+        {
+            NomeUsuario = "maria",
+            Senha = "b",
+            Email = "maria@example.com"
+        });
 
         Assert.NotEqual(u1.Id, u2.Id);
     }
@@ -46,7 +58,12 @@ public class UsuarioServicoTests
     public async Task ObterPorIdAsync_UsuarioExistente_DeveRetornarDto()
     {
         var servico = CriarServico(out _);
-        var criado = await servico.CriarAsync(new CriarUsuarioDto { NomeUsuario = "joao", Senha = "a" });
+        var criado = await servico.CriarAsync(new CriarUsuarioDto
+        {
+            NomeUsuario = "joao",
+            Senha = "a",
+            Email = "joao@example.com"
+        });
 
         var resultado = await servico.ObterPorIdAsync(criado.Id);
 
@@ -78,8 +95,18 @@ public class UsuarioServicoTests
     public async Task ListarTodosAsync_ComUsuariosCriados_DeveRetornarTodos()
     {
         var servico = CriarServico(out _);
-        await servico.CriarAsync(new CriarUsuarioDto { NomeUsuario = "joao", Senha = "a" });
-        await servico.CriarAsync(new CriarUsuarioDto { NomeUsuario = "maria", Senha = "b" });
+        await servico.CriarAsync(new CriarUsuarioDto
+        {
+            NomeUsuario = "joao",
+            Senha = "a",
+            Email = "joao@example.com"
+        });
+        await servico.CriarAsync(new CriarUsuarioDto
+        {
+            NomeUsuario = "maria",
+            Senha = "b",
+            Email = "maria@example.com"
+        });
 
         var resultado = await servico.ListarTodosAsync();
 
@@ -94,6 +121,7 @@ public class UsuarioServicoTests
         {
             NomeUsuario = "joao",
             Senha = "a",
+            Email = "joao@example.com",
             TipoUsuario = TipoUsuarioEnum.Membro
         });
 
@@ -122,7 +150,12 @@ public class UsuarioServicoTests
     public async Task RemoverAsync_UsuarioExistente_DeveRemoverERetornarTrue()
     {
         var servico = CriarServico(out _);
-        var criado = await servico.CriarAsync(new CriarUsuarioDto { NomeUsuario = "joao", Senha = "a" });
+        var criado = await servico.CriarAsync(new CriarUsuarioDto
+        {
+            NomeUsuario = "joao",
+            Senha = "a",
+            Email = "joao@example.com"
+        });
 
         var removido = await servico.RemoverAsync(criado.Id);
         var aposRemocao = await servico.ListarTodosAsync();
