@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\david\\\\source\\\\repos\\\\IgrejaV2\" -Directory)",
-      "Bash(Select-Object Name)"
+      "Bash(Select-Object Name)",
+      "Bash(Get-ChildItem \"C:\\\\Users\\\\david\\\\source\\\\repos\\\\IgrejaV2\\\\IgrejaV2.Testes\" -Recurse -Include \"*.cs\")",
+      "Bash(Select-Object -First 10)"
     ]
   }
 }
