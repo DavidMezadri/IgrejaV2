@@ -24,5 +24,11 @@ namespace IgrejaV2.Infraestrutura.Repositorios
             .Include(f => f.Responsavel)
             .Include(f => f.Membros)
             .FirstOrDefaultAsync(f => f.Id == id, ct);
+
+        public async Task<IEnumerable<Familia>> BuscarPorNomeAsync(string nome, CancellationToken ct = default)
+            => await _dbSet.AsNoTracking()
+            .Where(f => f.Nome.Contains(nome))
+            .OrderBy(f => f.Nome)
+            .ToListAsync(ct);
     }
 }

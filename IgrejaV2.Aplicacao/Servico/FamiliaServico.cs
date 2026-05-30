@@ -52,6 +52,15 @@ public class FamiliaServico(IRepositorioFamilia repositorio, LogServico logServi
         return familias.Select(ToDtoComMembros);
     }
 
+    public async Task<IEnumerable<FamiliaResponseDto>> BuscarPorNomeAsync(string nome, CancellationToken ct = default)
+    {
+        if (string.IsNullOrWhiteSpace(nome))
+            return Enumerable.Empty<FamiliaResponseDto>();
+
+        var familias = await repositorio.BuscarPorNomeAsync(nome, ct);
+        return familias.Select(ToDto);
+    }
+
     public async Task<FamiliaResponseDto?> AtualizarAsync(int id, AtualizarFamiliaDto dto, CancellationToken ct = default)
     {
         var familia = await repositorio.ObterPorIdAsync(id, ct);

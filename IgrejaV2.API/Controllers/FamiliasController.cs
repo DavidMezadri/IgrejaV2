@@ -37,6 +37,22 @@ public class FamiliasController(FamiliaServico servico) : ControllerBase
         return Ok(familias);
     }
 
+    /// <summary>Busca famílias pelo nome.</summary>
+    /// <param name="nome">Nome ou parte do nome para buscar.</param>
+    /// <response code="200">Lista de famílias encontradas.</response>
+    /// <response code="400">Parâmetro inválido.</response>
+    [HttpGet("buscar")]
+    [ProducesResponseType(typeof(IEnumerable<FamiliaResponseDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> BuscarPorNome([FromQuery] string? nome, CancellationToken ct)
+    {
+        if (string.IsNullOrWhiteSpace(nome))
+            return BadRequest(new { mensagem = "O parâmetro 'nome' é obrigatório." });
+
+        var familias = await servico.BuscarPorNomeAsync(nome, ct);
+        return Ok(familias);
+    }
+
     /// <summary>Obtém uma família pelo ID, incluindo membros.</summary>
     /// <param name="id">Identificador único da família.</param>
     /// <response code="200">Dados da família.</response>
