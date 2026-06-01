@@ -10,7 +10,6 @@ namespace IgrejaV2.API.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/eventos")]
-[Authorize]
 [Produces("application/json")]
 [Tags("Eventos")]
 public class EventosController(EventoServico servico) : ControllerBase
@@ -19,6 +18,7 @@ public class EventosController(EventoServico servico) : ControllerBase
     /// <response code="201">Evento criado.</response>
     /// <response code="400">Dados inválidos.</response>
     [HttpPost]
+    [Authorize]
     [ProducesResponseType(typeof(EventoResponseDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Criar([FromBody] CriarEventoDto dto, CancellationToken ct)
@@ -65,6 +65,7 @@ public class EventosController(EventoServico servico) : ControllerBase
     /// <response code="200">Evento atualizado.</response>
     /// <response code="404">Evento não encontrado.</response>
     [HttpPut("{id:int}")]
+    [Authorize]
     [ProducesResponseType(typeof(EventoResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Atualizar(int id, [FromBody] AtualizarEventoDto dto, CancellationToken ct)
@@ -78,6 +79,7 @@ public class EventosController(EventoServico servico) : ControllerBase
     /// <response code="204">Evento removido com sucesso.</response>
     /// <response code="404">Evento não encontrado.</response>
     [HttpDelete("{id:int}")]
+    [Authorize]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Remover(int id, CancellationToken ct)

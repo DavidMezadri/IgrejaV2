@@ -23,6 +23,7 @@ public class TokenServico(IConfiguration config)
             new Claim(JwtRegisteredClaimNames.Sub, usuario.Id.ToString()),
             new Claim(JwtRegisteredClaimNames.UniqueName, usuario.NomeUsuario),
             new Claim(JwtRegisteredClaimNames.Email, usuario.Email),
+            new Claim(ClaimTypes.Role, usuario.TipoUsuario.ToString()),
             new Claim("tipo_usuario", usuario.TipoUsuario.ToString()),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };

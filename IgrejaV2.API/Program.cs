@@ -94,6 +94,7 @@ builder.Services.AddAuthorization();
 builder.Services.AddInfraestrutura(builder.Configuration);
 
 // 5. Registra serviços da camada de Aplicação
+builder.Services.AddScoped<IConfigServico, ConfigServico>();
 builder.Services.AddScoped<LogServico>();
 builder.Services.AddScoped<UsuarioServico>();
 builder.Services.AddScoped<AuthServico>();
@@ -141,6 +142,10 @@ if (app.Environment.IsDevelopment())
     });
 }
 app.UseCors("Frontend");
+
+// Servir arquivos estáticos (imagens, CSS, JS, etc)
+app.UseStaticFiles();
+
 app.UseRouting();
 //app.UseHttpsRedirection();
 app.UseAuthentication();
