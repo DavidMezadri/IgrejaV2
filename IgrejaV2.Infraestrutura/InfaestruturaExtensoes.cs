@@ -27,6 +27,7 @@ namespace IgrejaV2.Infraestrutura
                 // Inicializador e Repositórios Dapper
                 services.AddScoped<DatabaseConfig.IInicializadorBanco, DatabaseConfig.InicializadorBancoDapper>();
 
+                services.AddScoped<IRepositorioConfig>(p         => new Repositorios.Dapper.RepositorioConfigDapper(connectionString));
                 services.AddScoped<IRepositorioEndereco>(p       => new Repositorios.Dapper.RepositorioEnderecoDapper(connectionString));
                 services.AddScoped<IRepositorioEvento>(p         => new Repositorios.Dapper.RepositorioEventoDapper(connectionString));
                 services.AddScoped<IRepositorioFamilia>(p        => new Repositorios.Dapper.RepositorioFamiliaDapper(connectionString));
@@ -46,6 +47,7 @@ namespace IgrejaV2.Infraestrutura
                 // Inicializador e Repositórios EF Core
                 services.AddScoped<DatabaseConfig.IInicializadorBanco, DatabaseConfig.InicializadorBancoEF>();
 
+                services.AddScoped<IRepositorioConfig, RepositorioConfig>();
                 services.AddScoped<IRepositorioEndereco, RepositorioEndereco>();
                 services.AddScoped<IRepositorioEvento, RepositorioEvento>();
                 services.AddScoped<IRepositorioFamilia, RepositorioFamilia>();

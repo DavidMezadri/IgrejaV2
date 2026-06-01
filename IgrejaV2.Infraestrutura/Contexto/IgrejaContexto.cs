@@ -8,6 +8,7 @@ namespace IgrejaV2.Infraestrutura.Contexto
     {
         public IgrejaContexto(DbContextOptions<IgrejaContexto> opcoes) : base(opcoes) { }
 
+        public DbSet<Configuracao> Configuracoes                 => Set<Configuracao>();
         public DbSet<Endereco> Enderecos                        => Set<Endereco>();
         public DbSet<Evento> Eventos                            => Set<Evento>();
         public DbSet<Familia> Familias                          => Set<Familia>();

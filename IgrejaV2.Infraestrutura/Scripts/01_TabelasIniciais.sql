@@ -300,7 +300,7 @@ ALTER TABLE pessoas
 -- familias → pessoas
 ALTER TABLE familias
     ADD CONSTRAINT fk_familias_pessoas_responsavel_id
-    FOREIGN KEY (responsavel_id) REFERENCES pessoas (id) ON DELETE RESTRICT;
+    FOREIGN KEY (responsavel_id) REFERENCES pessoas (id) ON DELETE SET NULL;
 
 -- usuarios → pessoas
 ALTER TABLE usuarios
@@ -310,12 +310,12 @@ ALTER TABLE usuarios
 -- igrejas → enderecos
 ALTER TABLE igrejas
     ADD CONSTRAINT fk_igrejas_enderecos_endereco_id
-    FOREIGN KEY (endereco_id) REFERENCES enderecos (id) ON DELETE RESTRICT;
+    FOREIGN KEY (endereco_id) REFERENCES enderecos (id) ON DELETE SET NULL;
 
 -- igrejas → pessoas (pastor responsável)
 ALTER TABLE igrejas
     ADD CONSTRAINT fk_igrejas_pessoas_pastor_responsavel_id
-    FOREIGN KEY (pastor_responsavel_id) REFERENCES pessoas (id) ON DELETE RESTRICT;
+    FOREIGN KEY (pastor_responsavel_id) REFERENCES pessoas (id) ON DELETE SET NULL;
 
 -- patrimonios → igrejas
 ALTER TABLE patrimonios
@@ -325,7 +325,7 @@ ALTER TABLE patrimonios
 -- eventos → tipos_evento
 ALTER TABLE eventos
     ADD CONSTRAINT fk_eventos_tipos_evento_tipo_evento_id
-    FOREIGN KEY (tipo_evento_id) REFERENCES tipos_evento (id) ON DELETE RESTRICT;
+    FOREIGN KEY (tipo_evento_id) REFERENCES tipos_evento (id) ON DELETE SET NULL;
 
 -- eventos → enderecos
 ALTER TABLE eventos
@@ -335,12 +335,12 @@ ALTER TABLE eventos
 -- presencas → eventos
 ALTER TABLE presencas
     ADD CONSTRAINT fk_presencas_eventos_evento_id
-    FOREIGN KEY (evento_id) REFERENCES eventos (id) ON DELETE RESTRICT;
+    FOREIGN KEY (evento_id) REFERENCES eventos (id) ON DELETE SET NULL;
 
 -- presencas → pessoas
 ALTER TABLE presencas
     ADD CONSTRAINT fk_presencas_pessoas_pessoa_id
-    FOREIGN KEY (pessoa_id) REFERENCES pessoas (id) ON DELETE RESTRICT;
+    FOREIGN KEY (pessoa_id) REFERENCES pessoas (id) ON DELETE SET NULL;
 
 -- presencas → usuarios
 ALTER TABLE presencas

@@ -10,7 +10,6 @@ namespace IgrejaV2.API.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/tipos-evento")]
-[Authorize]
 [Produces("application/json")]
 [Tags("Tipos de Evento")]
 public class TiposEventoController(TipoEventoServico servico) : ControllerBase
@@ -19,6 +18,7 @@ public class TiposEventoController(TipoEventoServico servico) : ControllerBase
     /// <response code="201">Tipo de evento criado.</response>
     /// <response code="400">Dados inválidos.</response>
     [HttpPost]
+    [Authorize]
     [ProducesResponseType(typeof(TipoEventoResponseDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Criar([FromBody] CriarTipoEventoDto dto, CancellationToken ct)
@@ -55,6 +55,7 @@ public class TiposEventoController(TipoEventoServico servico) : ControllerBase
     /// <response code="200">Tipo de evento atualizado.</response>
     /// <response code="404">Tipo de evento não encontrado.</response>
     [HttpPut("{id:int}")]
+    [Authorize]
     [ProducesResponseType(typeof(TipoEventoResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Atualizar(int id, [FromBody] AtualizarTipoEventoDto dto, CancellationToken ct)
@@ -68,6 +69,7 @@ public class TiposEventoController(TipoEventoServico servico) : ControllerBase
     /// <response code="204">Tipo de evento removido com sucesso.</response>
     /// <response code="404">Tipo de evento não encontrado.</response>
     [HttpDelete("{id:int}")]
+    [Authorize]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Remover(int id, CancellationToken ct)
