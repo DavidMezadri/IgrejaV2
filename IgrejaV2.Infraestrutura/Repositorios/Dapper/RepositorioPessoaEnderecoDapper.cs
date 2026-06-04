@@ -15,11 +15,13 @@ namespace IgrejaV2.Infraestrutura.Repositorios.Dapper
         {
             var sql = @"
                 SELECT
-                    pe.id, pe.pessoa_id, pe.endereco_id,
+                    pe.id, pe.pessoa_id, pe.endereco_id, pe.principal,
+                    pe.data_criacao, pe.deletado,
                     e.id, e.rua, e.numero, e.complemento, e.bairro, e.cidade, e.estado, e.cep
                 FROM pessoas_enderecos pe
-                INNER JOIN enderecos e ON e.id = pe.endereco_id AND e.deletado = false
-                WHERE pe.pessoa_id = @PessoaId AND pe.deletado = false";
+                LEFT JOIN enderecos e ON e.id = pe.endereco_id
+                WHERE pe.pessoa_id = @PessoaId AND pe.deletado = false
+                ORDER BY pe.id";
 
             using var conn = CriarConexao();
             var resultado = new List<PessoaEndereco>();

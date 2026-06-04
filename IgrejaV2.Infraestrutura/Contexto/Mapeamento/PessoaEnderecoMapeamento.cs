@@ -12,6 +12,7 @@ namespace IgrejaV2.Infraestrutura.Contexto.Mapeamento
 
             builder.Property(pe => pe.PessoaId).HasColumnName("pessoa_id").IsRequired();
             builder.Property(pe => pe.EnderecoId).HasColumnName("endereco_id").IsRequired();
+            builder.Property(pe => pe.Principal).HasColumnName("principal");
 
             builder.HasOne(pe => pe.Pessoa)
                 .WithMany(p => p.Enderecos)

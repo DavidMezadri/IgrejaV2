@@ -31,8 +31,8 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
-    # volumes:                                      # persistência — desabilitada por enquanto
-    #   - postgres_data:/var/lib/postgresql/data
+    volumes:                                      # persistência — desabilitada por enquanto
+      - postgres_data:/var/lib/postgresql/data
 
-# volumes:                                          # descomentar junto com o volume acima
-#   postgres_data:
+volumes:                                          # descomentar junto com o volume acima
+  postgres_data:

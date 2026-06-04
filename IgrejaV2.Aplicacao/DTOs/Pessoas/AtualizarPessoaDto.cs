@@ -12,9 +12,10 @@ public class AtualizarPessoaDto
     public DateTime? DataNascimento { get; set; }
     public SexoEnum? Sexo { get; set; }
 
+    [Required]
     [EmailAddress]
     [MaxLength(200)]
-    public string? Email { get; set; }
+    public string Email { get; set; } = string.Empty;
 
     [MaxLength(20)]
     public string? Telefone { get; set; }

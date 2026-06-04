@@ -3,6 +3,7 @@ using System;
 using IgrejaV2.Infraestrutura.Contexto;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace IgrejaV2.Infraestrutura.Migrations
 {
     [DbContext(typeof(IgrejaContexto))]
-    partial class IgrejaContextoModelSnapshot : ModelSnapshot
+    [Migration("20260604181908_AddPrincipalToPessoaEndereco")]
+    partial class AddPrincipalToPessoaEndereco
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -717,8 +720,7 @@ namespace IgrejaV2.Infraestrutura.Migrations
                         .HasColumnName("pessoa_id");
 
                     b.Property<bool>("Principal")
-                        .HasColumnType("boolean")
-                        .HasColumnName("principal");
+                        .HasColumnType("boolean");
 
                     b.HasKey("Id");
 
