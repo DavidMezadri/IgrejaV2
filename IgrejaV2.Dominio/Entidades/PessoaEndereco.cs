@@ -7,4 +7,6 @@ public class PessoaEndereco : EntidadeBase
 
     public int PessoaId { get; set; }
     public Pessoa? Pessoa { get; set; }
+
+    public bool Principal { get; set; } = false;
 }

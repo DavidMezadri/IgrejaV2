@@ -23,14 +23,22 @@ public class PessoaEnderecoServico(
         if (!enderecoExiste)
             throw new InvalidOperationException($"Endereço com ID {dto.EnderecoId} não encontrado.");
 
+        var jaVinculado = await repositorio.ObterPrimeiroAsync(
+            pe => pe.PessoaId == dto.PessoaId && pe.EnderecoId == dto.EnderecoId && !pe.Deletado, ct);
+        if (jaVinculado is not null)
+            throw new InvalidOperationException($"Este endereço já está vinculado a esta pessoa.");
+
         var pessoaEndereco = new PessoaEndereco
         {
             EnderecoId = dto.EnderecoId,
-            PessoaId = dto.PessoaId
+            PessoaId = dto.PessoaId,
+            Principal = dto.Principal
         };
 
         await repositorio.AdicionarAsync(pessoaEndereco, ct);
-        await repositorio.SalvarAlteracoesAsync(ct);
+        var resultado = await repositorio.SalvarAlteracoesAsync(ct);
+
+        System.Diagnostics.Debug.WriteLine($"[DEBUG] PessoaEndereco salvo: ID={pessoaEndereco.Id}, PessoaId={pessoaEndereco.PessoaId}, EnderecoId={pessoaEndereco.EnderecoId}, Principal={pessoaEndereco.Principal}, Resultado={resultado}");
 
         var pessoaEnderecoCompleto = await repositorio.ObterPorIdAsync(pessoaEndereco.Id, ct);
 
@@ -81,6 +89,7 @@ public class PessoaEnderecoServico(
         Id = pe.Id,
         EnderecoId = pe.EnderecoId,
         PessoaId = pe.PessoaId,
+        Principal = pe.Principal,
         Endereco = pe.Endereco is not null ? new EnderecoResponseDto
         {
             Id = pe.Endereco.Id,

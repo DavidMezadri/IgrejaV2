@@ -5,19 +5,12 @@ using IgrejaV2.Dominio.Interfaces;
 
 namespace IgrejaV2.Aplicacao.Servico;
 
-public class PessoaServico(IRepositorioPessoa repositorio, IRepositorioFamilia repositorioFamilia, LogServico logServico)
+public class PessoaServico(IRepositorioPessoa repositorio, IRepositorioFamilia repositorioFamilia, IRepositorioEndereco repositorioEndereco, LogServico logServico)
 {
     public async Task<PessoaResponseDto> CriarAsync(CriarPessoaDto dto, CancellationToken ct = default)
     {
-
-        if (string.IsNullOrEmpty(dto.Nome))
-                throw new InvalidOperationException($"É necessário cadastrar um nome para pessoa!");
-
-        if (string.IsNullOrEmpty(dto.Email))
-            throw new InvalidOperationException($"É necessário cadastrar um E-mail para pessoa!");
-
-        if (!dto.DataNascimento.HasValue || dto.DataNascimento == DateTime.MinValue)
-            throw new InvalidOperationException($"É necessário cadastrar a data que se tornou membro!");
+        if (!dto.MembroDesde.HasValue || dto.MembroDesde == DateTime.MinValue)
+            throw new InvalidOperationException($"É necessário cadastrar a data de membro.");
 
         // Valida FamiliaId antes de inserir (aplicação valida, não depende de erro do banco)
         // Funciona tanto com EF Core quanto Dapper

@@ -6,6 +6,7 @@ using IgrejaV2.Infraestrutura.DatabaseConfig;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Microsoft.AspNetCore.Diagnostics;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -102,6 +103,7 @@ builder.Services.AddScoped<PessoaServico>();
 builder.Services.AddScoped<FamiliaServico>();
 builder.Services.AddScoped<EventoServico>();
 builder.Services.AddScoped<TipoEventoServico>();
+builder.Services.AddScoped<IgrejaServico>();
 builder.Services.AddScoped<PresencaServico>();
 builder.Services.AddScoped<EnderecoServico>();
 builder.Services.AddScoped<PessoaEnderecoServico>();
@@ -145,6 +147,21 @@ app.UseCors("Frontend");
 
 // Servir arquivos estáticos (imagens, CSS, JS, etc)
 app.UseStaticFiles();
+
+// Middleware global de exceção: converte InvalidOperationException → 400 Bad Request
+app.UseExceptionHandler(appBuilder =>
+{
+    appBuilder.Run(async context =>
+    {
+        var feature = context.Features.Get<IExceptionHandlerFeature>();
+        if (feature?.Error is InvalidOperationException ex)
+        {
+            context.Response.StatusCode = 400;
+            context.Response.ContentType = "application/json";
+            await context.Response.WriteAsJsonAsync(new { mensagem = ex.Message });
+        }
+    });
+});
 
 app.UseRouting();
 //app.UseHttpsRedirection();

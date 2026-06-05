@@ -11,6 +11,12 @@ namespace IgrejaV2.Infraestrutura.Repositorios
         public RepositorioPessoaEndereco(IgrejaContexto contexto) : base(contexto) { }
 
         public async Task<IEnumerable<PessoaEndereco>> ObterPorPessoaAsync(int pessoaId, CancellationToken ct = default)
-            => await _dbSet.AsNoTracking().Include(pe => pe.Endereco).Where(pe => pe.PessoaId == pessoaId).ToListAsync(ct);
+        {
+            return await _contexto.PessoasEnderecos
+                .Where(pe => pe.PessoaId == pessoaId)
+                .Include(pe => pe.Endereco)
+                .Include(pe => pe.Pessoa)
+                .ToListAsync(ct);
+        }
     }
 }
