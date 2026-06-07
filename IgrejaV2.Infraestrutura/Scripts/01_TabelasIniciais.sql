@@ -125,6 +125,7 @@ CREATE TABLE igrejas (
     cnpj                    VARCHAR(20),
     telefone                VARCHAR(20),
     email                   VARCHAR(100),
+    lema                    TEXT,
     data_fundacao           TIMESTAMP,
     ativa                   BOOLEAN         NOT NULL DEFAULT TRUE,
     observacoes             VARCHAR(500),

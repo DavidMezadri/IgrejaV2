@@ -2,7 +2,9 @@ using IgrejaV2.Aplicacao.DTOs.Auth;
 using IgrejaV2.Aplicacao.DTOs.Usuarios;
 using IgrejaV2.Aplicacao.Servico;
 using IgrejaV2.API.Servicos;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace IgrejaV2.API.Controllers;
 
@@ -52,6 +54,36 @@ public class AutenticacaoController(AuthServico authServico, TokenServico tokenS
                 UltimoLogin = usuario.UltimoLogin,
                 DataCriacao = usuario.DataCriacao
             }
+        });
+    }
+
+    /// <summary>Retorna os dados do usuário autenticado.</summary>
+    /// <remarks>Valida o token JWT e retorna os dados do usuário.</remarks>
+    /// <response code="200">Dados do usuário autenticado.</response>
+    /// <response code="401">Token inválido ou expirado.</response>
+    [HttpGet("me")]
+    [Authorize]
+    [ProducesResponseType(typeof(UsuarioResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> Me(CancellationToken ct)
+    {
+        var usuarioIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (!int.TryParse(usuarioIdClaim, out var usuarioId))
+            return Unauthorized();
+
+        var usuario = await authServico.ObterUsuarioPorIdAsync(usuarioId, ct);
+        if (usuario is null)
+            return Unauthorized();
+
+        return Ok(new UsuarioResponseDto
+        {
+            Id = usuario.Id,
+            NomeUsuario = usuario.NomeUsuario,
+            Email = usuario.Email,
+            TipoUsuario = usuario.TipoUsuario,
+            PrimeiroAcesso = usuario.PrimeiroAcesso,
+            UltimoLogin = usuario.UltimoLogin,
+            DataCriacao = usuario.DataCriacao
         });
     }
 
