@@ -8,7 +8,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository_owner }}/igrejav2
+  REGISTRY_LOWERCASE: ghcr.io/${{ github.repository_owner }}
 
 jobs:
   build-and-push:
@@ -38,7 +38,7 @@ jobs:
           file: ./IgrejaV2.API/Dockerfile
           platforms: linux/arm64
           push: true
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          tags: ${{ env.REGISTRY }}/davidmezadri/igrejav2:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
