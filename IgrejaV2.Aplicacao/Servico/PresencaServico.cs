@@ -45,6 +45,12 @@ public class PresencaServico(IRepositorioPresenca repositorio, LogServico logSer
         return presenca is null ? null : ToDto(presenca);
     }
 
+    public async Task<IEnumerable<PresencaResponseDto>> ListarTodosAsync(CancellationToken ct = default)
+    {
+        var presencas = await repositorio.ListarTodosAsync(ct);
+        return presencas.Select(ToDto);
+    }
+
     public async Task<IEnumerable<PresencaResponseDto>> ListarPorEventoAsync(int eventoId, CancellationToken ct = default)
     {
         var presencas = await repositorio.ObterPorEventoAsync(eventoId, ct);

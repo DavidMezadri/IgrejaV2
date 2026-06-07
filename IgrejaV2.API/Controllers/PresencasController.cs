@@ -15,6 +15,16 @@ namespace IgrejaV2.API.Controllers;
 [Tags("Presenças")]
 public class PresencasController(PresencaServico servico) : ControllerBase
 {
+    /// <summary>Lista todas as presenças.</summary>
+    /// <response code="200">Lista de presenças.</response>
+    [HttpGet]
+    [ProducesResponseType(typeof(IEnumerable<PresencaResponseDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> Listar(CancellationToken ct)
+    {
+        var presencas = await servico.ListarTodosAsync(ct);
+        return Ok(presencas);
+    }
+
     /// <summary>Registra a presença de uma pessoa em um evento.</summary>
     /// <response code="201">Presença registrada.</response>
     /// <response code="400">Dados inválidos.</response>

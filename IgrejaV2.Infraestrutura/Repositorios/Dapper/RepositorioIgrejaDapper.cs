@@ -15,7 +15,7 @@ namespace IgrejaV2.Infraestrutura.Repositorios.Dapper
         {
             var sql = @"
                 SELECT
-                    i.id, i.nome, i.cnpj, i.telefone, i.email, i.data_fundacao, i.ativa, i.observacoes,
+                    i.id, i.nome, i.cnpj, i.telefone, i.email, i.lema, i.data_fundacao, i.ativa, i.observacoes,
                     p.id, p.nome, p.descricao, p.numero_patrimonio, p.ativo, p.valor_aquisicao, p.data_aquisicao
                 FROM igrejas i
                 LEFT JOIN patrimonios p ON p.igreja_id = i.id AND p.deletado = false

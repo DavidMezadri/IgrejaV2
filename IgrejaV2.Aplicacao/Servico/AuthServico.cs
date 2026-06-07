@@ -90,4 +90,7 @@ public class AuthServico(IRepositorioUsuario repositorio, LogServico logServico,
 
         return true;
     }
+
+    public async Task<Usuario?> ObterUsuarioPorIdAsync(int usuarioId, CancellationToken ct = default)
+        => await repositorio.ObterPorIdAsync(usuarioId, ct);
 }
