@@ -9,6 +9,11 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=8080
       - ConnectionStrings__Postgres=Host=postgres;Port=5432;Database=igrejav2;Username=postgres;Password=postgres
+      - Jwt__Chave=ChaveJWTSeguraComPeloMenos32CaracteresAuMaisParaFuncionar2024
+      - Jwt__Emissor=https://igrejav2.com
+      - Jwt__Audiencia=igrejav2-app
+      - Jwt__ExpiracaoHoras=8
+      - ConfiguracoesDeBanco__ProviderOrmSelecionado=Dapper
     ports:
       - "8080:8080"
     depends_on:
