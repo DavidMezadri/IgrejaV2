@@ -87,6 +87,19 @@ public class AutenticacaoController(AuthServico authServico, TokenServico tokenS
         });
     }
 
+    /// <summary>Realiza logout do usuário autenticado.</summary>
+    /// <remarks>Endpoint de logout. O token é invalidado no lado do cliente.</remarks>
+    /// <response code="200">Logout realizado com sucesso.</response>
+    /// <response code="401">Token inválido ou expirado.</response>
+    [HttpPost("logout")]
+    [Authorize]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public IActionResult Logout()
+    {
+        return Ok(new { mensagem = "Logout realizado com sucesso." });
+    }
+
     /// <summary>Solicita a recuperação de senha por e-mail.</summary>
     /// <remarks>
     /// Gera um token de reset com validade de **2 horas** e o envia para o e-mail informado.
