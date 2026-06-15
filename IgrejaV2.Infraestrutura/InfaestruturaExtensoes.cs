@@ -41,6 +41,7 @@ namespace IgrejaV2.Infraestrutura
                 services.AddScoped<IRepositorioTraducao>(p       => new Repositorios.Dapper.RepositorioTraducaoDapper(connectionString));
                 services.AddScoped<IRepositorioVersiculo>(p      => new Repositorios.Dapper.RepositorioVerisculoDapper(connectionString));
                 services.AddScoped<IRepositorioUsuario>(p        => new Repositorios.Dapper.RepositorioUsuarioDapper(connectionString));
+                services.AddScoped<IRepositorioAviso>(p          => new Repositorios.Dapper.RepositorioAvisoDapper(connectionString));
             }
             else
             {
@@ -61,6 +62,7 @@ namespace IgrejaV2.Infraestrutura
                 services.AddScoped<IRepositorioTraducao, RepositorioTraducao>();
                 services.AddScoped<IRepositorioVersiculo, RepositorioVersiculo>();
                 services.AddScoped<IRepositorioUsuario, RepositorioUsuario>();
+                services.AddScoped<IRepositorioAviso, RepositorioAviso>();
             }
 
             return services;

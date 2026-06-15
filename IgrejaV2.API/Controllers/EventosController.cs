@@ -27,14 +27,22 @@ public class EventosController(EventoServico servico) : ControllerBase
         return CreatedAtAction(nameof(ObterPorId), new { id = evento.Id }, evento);
     }
 
-    /// <summary>Lista todos os eventos.</summary>
+    /// <summary>Lista eventos opcionalmente filtrados por intervalo de datas.</summary>
+    /// <param name="dataInicio">Data inicial (ISO 8601).</param>
+    /// <param name="dataFim">Data final (ISO 8601).</param>
     /// <response code="200">Lista de eventos.</response>
     [HttpGet]
     [ProducesResponseType(typeof(IEnumerable<EventoResponseDto>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> Listar(CancellationToken ct)
+    public async Task<IActionResult> Listar([FromQuery] DateTime? dataInicio, [FromQuery] DateTime? dataFim, CancellationToken ct)
     {
-        var eventos = await servico.ListarTodosAsync(ct);
-        return Ok(eventos);
+        if (dataInicio.HasValue && dataFim.HasValue)
+        {
+            var eventos = await servico.ListarPorIntervaloAsync(dataInicio.Value, dataFim.Value, ct);
+            return Ok(eventos);
+        }
+
+        var todoEventos = await servico.ListarTodosAsync(ct);
+        return Ok(todoEventos);
     }
 
     /// <summary>Lista apenas os eventos ativos, ordenados pela data de início.</summary>

@@ -6,5 +6,6 @@ namespace IgrejaV2.Dominio.Interfaces
     {
         Task<IEnumerable<Evento>> ObterEventosAtivosAsync(CancellationToken ct = default);
         Task<Evento?> ObterComPresencasAsync(int id, CancellationToken ct = default);
+        Task<IEnumerable<Evento>> ListarPorIntervaloAsync(DateTime dataInicio, DateTime dataFim, CancellationToken ct = default);
     }
 }

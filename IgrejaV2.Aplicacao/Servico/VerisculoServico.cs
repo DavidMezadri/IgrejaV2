@@ -119,6 +119,17 @@ public class VerisculoServico(IRepositorioVersiculo repositorio, IRepositorioTra
         return lista;
     }
 
+    public async Task<IEnumerable<VericuloResponseDto>> ObterIntervaloVersiculosAsync(int livro, int capitulo, int traducaoId, int inicio, int fim, CancellationToken ct = default)
+    {
+        var versiculos = await repositorio.ObterPorLivroCaptituloAsync(livro, capitulo, traducaoId);
+        var lista = new List<VericuloResponseDto>();
+
+        foreach (var v in versiculos.Where(v => v.Numero >= inicio && v.Numero <= fim).OrderBy(v => v.Numero))
+            lista.Add(await ToDtoAsync(v, ct));
+
+        return lista;
+    }
+
     private async Task<VericuloResponseDto> ToDtoAsync(Versiculo v, CancellationToken ct = default)
     {
         var traducao = await repositorioTraducao.ObterPorIdAsync(v.TraducaoId, ct);

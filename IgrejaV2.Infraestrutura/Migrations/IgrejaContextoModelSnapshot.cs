@@ -22,6 +22,95 @@ namespace IgrejaV2.Infraestrutura.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("IgrejaV2.Dominio.Entidades.Aviso", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Ativo")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasColumnName("ativo")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("Categoria")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("categoria");
+
+                    b.Property<string>("Conteudo")
+                        .HasColumnType("text")
+                        .HasColumnName("conteudo");
+
+                    b.Property<DateTime>("Data")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("data");
+
+                    b.Property<DateTime>("DataAtualizacao")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("data_atualizacao");
+
+                    b.Property<DateTime>("DataCriacao")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("data_criacao")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<DateTime?>("DataDelecao")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("data_delecao");
+
+                    b.Property<bool>("Deletado")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasColumnName("deletado")
+                        .HasDefaultValue(false);
+
+                    b.Property<int?>("AtualizadoPorId")
+                        .HasColumnType("integer")
+                        .HasColumnName("atualizado_por_id");
+
+                    b.Property<int?>("CriadoPorId")
+                        .HasColumnType("integer")
+                        .HasColumnName("criado_por_id");
+
+                    b.Property<int?>("DeletadoPorId")
+                        .HasColumnType("integer")
+                        .HasColumnName("deletado_por_id");
+
+                    b.Property<string>("Resumo")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("resumo");
+
+                    b.Property<string>("Titulo")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("titulo");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Ativo")
+                        .HasDatabaseName("idx_avisos_ativo");
+
+                    b.HasIndex("Categoria")
+                        .HasDatabaseName("idx_avisos_categoria");
+
+                    b.HasIndex("Data")
+                        .HasDatabaseName("idx_avisos_data");
+
+                    b.HasIndex("Deletado")
+                        .HasDatabaseName("idx_avisos_deletado");
+
+                    b.ToTable("avisos", (string)null);
+                });
+
             modelBuilder.Entity("IgrejaV2.Dominio.Entidades.Configuracao", b =>
                 {
                     b.Property<int>("Id")

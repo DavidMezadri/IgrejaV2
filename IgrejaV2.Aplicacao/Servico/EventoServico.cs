@@ -56,6 +56,12 @@ public class EventoServico(IRepositorioEvento repositorio, LogServico logServico
         return eventos.Select(ToDto);
     }
 
+    public async Task<IEnumerable<EventoResponseDto>> ListarPorIntervaloAsync(DateTime dataInicio, DateTime dataFim, CancellationToken ct = default)
+    {
+        var eventos = await repositorio.ListarPorIntervaloAsync(dataInicio, dataFim, ct);
+        return eventos.Select(ToDto);
+    }
+
     public async Task<EventoResponseDto?> AtualizarAsync(int id, AtualizarEventoDto dto, CancellationToken ct = default)
     {
         var evento = await repositorio.ObterPorIdAsync(id, ct);
