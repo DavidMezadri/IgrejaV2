@@ -30,6 +30,7 @@ public class TraducoesController(TraducaoServico servico) : ControllerBase
     /// <summary>Lista todas as traduções.</summary>
     /// <response code="200">Lista de traduções.</response>
     [HttpGet]
+    [AllowAnonymous]
     [ProducesResponseType(typeof(IEnumerable<TraducaoResponseDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> Listar(CancellationToken ct)
     {
@@ -42,6 +43,7 @@ public class TraducoesController(TraducaoServico servico) : ControllerBase
     /// <response code="200">Dados da tradução.</response>
     /// <response code="404">Tradução não encontrada.</response>
     [HttpGet("{id:int}")]
+    [AllowAnonymous]
     [ProducesResponseType(typeof(TraducaoResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> ObterPorId(int id, CancellationToken ct)

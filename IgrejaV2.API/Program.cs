@@ -116,6 +116,7 @@ builder.Services.AddScoped<EnderecoServico>();
 builder.Services.AddScoped<PessoaEnderecoServico>();
 builder.Services.AddScoped<TraducaoServico>();
 builder.Services.AddScoped<VerisculoServico>();
+builder.Services.AddScoped<AvisoServico>();
 
 // 6. Registra serviços da API
 builder.Services.AddScoped<TokenServico>();

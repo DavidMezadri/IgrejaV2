@@ -55,5 +55,17 @@ namespace IgrejaV2.Infraestrutura.Repositorios.Dapper
 
             return eventoDict.Values.FirstOrDefault();
         }
+
+        public async Task<IEnumerable<Evento>> ListarPorIntervaloAsync(DateTime dataInicio, DateTime dataFim, CancellationToken ct = default)
+        {
+            var sql = @"
+                SELECT * FROM eventos
+                WHERE data_inicio >= @DataInicio AND data_inicio <= @DataFim
+                AND deletado = false
+                ORDER BY data_inicio ASC";
+
+            using var conn = CriarConexao();
+            return await conn.QueryAsync<Evento>(new CommandDefinition(sql, new { DataInicio = dataInicio, DataFim = dataFim }, cancellationToken: ct));
+        }
     }
 }

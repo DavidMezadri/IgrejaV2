@@ -29,5 +29,12 @@ namespace IgrejaV2.Infraestrutura.Repositorios
                            .Where(e => e.Ativo)
                            .OrderByDescending(e => e.DataInicio)
                            .FirstOrDefaultAsync(ct);
+
+        public async Task<IEnumerable<Evento>> ListarPorIntervaloAsync(DateTime dataInicio, DateTime dataFim, CancellationToken ct = default)
+            => await _dbSet.AsNoTracking()
+                           .Include(e => e.TipoEvento)
+                           .Where(e => e.DataInicio >= dataInicio && e.DataInicio <= dataFim)
+                           .OrderBy(e => e.DataInicio)
+                           .ToListAsync(ct);
     }
 }

@@ -102,4 +102,26 @@ public class VersiculosController(VerisculoServico servico) : ControllerBase
         var versiculos = await servico.ObterPorLivroCaptituloAsync(livro, capitulo, traducaoId, ct);
         return Ok(versiculos);
     }
+
+    /// <summary>Obtém um intervalo de versículos de um capítulo específico.</summary>
+    /// <param name="livro">Número do livro (1-66).</param>
+    /// <param name="capitulo">Número do capítulo.</param>
+    /// <param name="traducaoId">Identificador da tradução.</param>
+    /// <param name="inicio">Número do versículo inicial (inclusivo).</param>
+    /// <param name="fim">Número do versículo final (inclusivo).</param>
+    /// <response code="200">Lista de versículos no intervalo especificado.</response>
+    [HttpGet("livro/{livro:int}/capitulo/{capitulo:int}/traducao/{traducaoId:int}/intervalo")]
+    [ProducesResponseType(typeof(IEnumerable<VericuloResponseDto>), StatusCodes.Status200OK)]
+    [AllowAnonymous]
+    public async Task<IActionResult> ObterIntervaloVersiculos(
+        int livro,
+        int capitulo,
+        int traducaoId,
+        [FromQuery] int inicio = 1,
+        [FromQuery] int fim = 10,
+        CancellationToken ct = default)
+    {
+        var versiculos = await servico.ObterIntervaloVersiculosAsync(livro, capitulo, traducaoId, inicio, fim, ct);
+        return Ok(versiculos);
+    }
 }
