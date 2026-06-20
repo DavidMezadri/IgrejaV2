@@ -59,6 +59,63 @@ public class VerisculoServico(IRepositorioVersiculo repositorio, IRepositorioTra
         }).ToList();
     }
 
+    public async Task<ListarVersiculosPaginadoResponseDto> ListarPaginadoAsync(
+        int pagina = 1,
+        int tamanhoPagina = 50,
+        int? livro = null,
+        int? capitulo = null,
+        int? traducaoId = null,
+        CancellationToken ct = default)
+    {
+        pagina = Math.Max(pagina, 1);
+        tamanhoPagina = Math.Max(1, Math.Min(tamanhoPagina, 500));
+
+        var versiculos = await repositorio.ListarTodosAsync(ct);
+        var versiculosFiltrados = versiculos.AsEnumerable();
+
+        if (livro.HasValue)
+            versiculosFiltrados = versiculosFiltrados.Where(v => v.Livro == livro.Value);
+        if (capitulo.HasValue)
+            versiculosFiltrados = versiculosFiltrados.Where(v => v.Capitulo == capitulo.Value);
+        if (traducaoId.HasValue)
+            versiculosFiltrados = versiculosFiltrados.Where(v => v.TraducaoId == traducaoId.Value);
+
+        var total = versiculosFiltrados.Count();
+        var totalPaginas = (int)Math.Ceiling((double)total / tamanhoPagina);
+        var skip = (pagina - 1) * tamanhoPagina;
+
+        var traduc = await repositorioTraducao.ListarTodosAsync(ct);
+        var traducoesDict = traduc.ToDictionary(t => t.Id);
+
+        var dados = versiculosFiltrados
+            .OrderBy(v => v.Livro)
+            .ThenBy(v => v.Capitulo)
+            .ThenBy(v => v.Numero)
+            .Skip(skip)
+            .Take(tamanhoPagina)
+            .Select(v => new VericuloResponseDto
+            {
+                Id = v.Id,
+                Livro = v.Livro,
+                Capitulo = v.Capitulo,
+                Numero = v.Numero,
+                Texto = v.Texto,
+                TraducaoId = v.TraducaoId,
+                TraducaoAbreviacao = traducoesDict.TryGetValue(v.TraducaoId, out var t) ? t.Abreviacao : null,
+                DataCriacao = v.DataCriacao
+            }).ToList();
+
+        return new ListarVersiculosPaginadoResponseDto
+        {
+            Pagina = pagina,
+            TamanhoPagina = tamanhoPagina,
+            Total = total,
+            TotalPaginas = totalPaginas,
+            TemProxima = pagina < totalPaginas,
+            Dados = dados
+        };
+    }
+
     public async Task<VericuloResponseDto?> AtualizarAsync(int id, AtualizarVericuloDto dto, CancellationToken ct = default)
     {
         var versiculo = await repositorio.ObterPorIdAsync(id, ct);
