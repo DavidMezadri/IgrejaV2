@@ -7,17 +7,17 @@ public abstract class EntidadeBase
     public DateTime DataCriacao { get; set; } = DateTime.UtcNow;
     public DateTime? DataAtualizacao { get; set; }
     
-    public int? CriadoPorId { get; set; } 
+    public int? CriadoPorId { get; set; }
     public int? AtualizadoPorId { get; set; }
 
-    //public bool Ativo { get; set; } = true;
+    public bool Ativo { get; set; } = true;
     public bool Deletado { get; set; } = false;
     public DateTime? DataDelecao { get; set; }
     public int? DeletadoPorId { get; set; }
 
     public void Desativar()
     {
-    //    Ativo = false;
+        Ativo = false;
         Deletado = true;
         DataAtualizacao = DateTime.UtcNow;
     }

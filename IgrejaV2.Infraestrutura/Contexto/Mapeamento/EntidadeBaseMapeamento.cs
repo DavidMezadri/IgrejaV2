@@ -20,6 +20,7 @@ namespace IgrejaV2.Infraestrutura.Contexto.Mapeamento
                     builder.Property(nameof(EntidadeBase.DataAtualizacao)).HasColumnName("data_atualizacao");
                     builder.Property(nameof(EntidadeBase.CriadoPorId)).HasColumnName("criado_por_id");
                     builder.Property(nameof(EntidadeBase.AtualizadoPorId)).HasColumnName("atualizado_por_id");
+                    builder.Property(nameof(EntidadeBase.Ativo)).HasColumnName("ativo").HasDefaultValue(true);
                     builder.Property(nameof(EntidadeBase.Deletado)).HasColumnName("deletado");
                     builder.Property(nameof(EntidadeBase.DataDelecao)).HasColumnName("data_delecao");
                     builder.Property(nameof(EntidadeBase.DeletadoPorId)).HasColumnName("deletado_por_id");

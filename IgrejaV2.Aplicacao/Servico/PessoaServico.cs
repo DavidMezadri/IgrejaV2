@@ -21,6 +21,12 @@ public class PessoaServico(IRepositorioPessoa repositorio, IRepositorioFamilia r
                 throw new InvalidOperationException($"A família com ID {dto.FamiliaId} não existe.");
         }
 
+        if (dto.DataBatismo.HasValue)
+        {
+            if (dto.DataNascimento is not null && dto.DataNascimento < dto.DataBatismo)
+                throw new InvalidOperationException($"A data de batismo deve ser maior que a data de nascimento.");
+        }
+
         var pessoa = new Pessoa
         {
             Nome = dto.Nome,

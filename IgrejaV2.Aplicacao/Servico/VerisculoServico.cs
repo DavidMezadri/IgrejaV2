@@ -43,10 +43,77 @@ public class VerisculoServico(IRepositorioVersiculo repositorio, IRepositorioTra
     public async Task<IEnumerable<VericuloResponseDto>> ListarTodosAsync(CancellationToken ct = default)
     {
         var versiculos = await repositorio.ListarTodosAsync(ct);
-        var lista = new List<VericuloResponseDto>();
-        foreach (var v in versiculos)
-            lista.Add(await ToDtoAsync(v, ct));
-        return lista;
+        var traducoes = await repositorioTraducao.ListarTodosAsync(ct);
+        var traducoesDict = traducoes.ToDictionary(t => t.Id);
+
+        return versiculos.Select(v => new VericuloResponseDto
+        {
+            Id = v.Id,
+            Livro = v.Livro,
+            Capitulo = v.Capitulo,
+            Numero = v.Numero,
+            Texto = v.Texto,
+            TraducaoId = v.TraducaoId,
+            TraducaoAbreviacao = traducoesDict.TryGetValue(v.TraducaoId, out var t) ? t.Abreviacao : null,
+            DataCriacao = v.DataCriacao
+        }).ToList();
+    }
+
+    public async Task<ListarVersiculosPaginadoResponseDto> ListarPaginadoAsync(
+        int pagina = 1,
+        int tamanhoPagina = 50,
+        int? livro = null,
+        int? capitulo = null,
+        int? traducaoId = null,
+        CancellationToken ct = default)
+    {
+        pagina = Math.Max(pagina, 1);
+        tamanhoPagina = Math.Max(1, Math.Min(tamanhoPagina, 500));
+
+        var versiculos = await repositorio.ListarTodosAsync(ct);
+        var versiculosFiltrados = versiculos.AsEnumerable();
+
+        if (livro.HasValue)
+            versiculosFiltrados = versiculosFiltrados.Where(v => v.Livro == livro.Value);
+        if (capitulo.HasValue)
+            versiculosFiltrados = versiculosFiltrados.Where(v => v.Capitulo == capitulo.Value);
+        if (traducaoId.HasValue)
+            versiculosFiltrados = versiculosFiltrados.Where(v => v.TraducaoId == traducaoId.Value);
+
+        var total = versiculosFiltrados.Count();
+        var totalPaginas = (int)Math.Ceiling((double)total / tamanhoPagina);
+        var skip = (pagina - 1) * tamanhoPagina;
+
+        var traduc = await repositorioTraducao.ListarTodosAsync(ct);
+        var traducoesDict = traduc.ToDictionary(t => t.Id);
+
+        var dados = versiculosFiltrados
+            .OrderBy(v => v.Livro)
+            .ThenBy(v => v.Capitulo)
+            .ThenBy(v => v.Numero)
+            .Skip(skip)
+            .Take(tamanhoPagina)
+            .Select(v => new VericuloResponseDto
+            {
+                Id = v.Id,
+                Livro = v.Livro,
+                Capitulo = v.Capitulo,
+                Numero = v.Numero,
+                Texto = v.Texto,
+                TraducaoId = v.TraducaoId,
+                TraducaoAbreviacao = traducoesDict.TryGetValue(v.TraducaoId, out var t) ? t.Abreviacao : null,
+                DataCriacao = v.DataCriacao
+            }).ToList();
+
+        return new ListarVersiculosPaginadoResponseDto
+        {
+            Pagina = pagina,
+            TamanhoPagina = tamanhoPagina,
+            Total = total,
+            TotalPaginas = totalPaginas,
+            TemProxima = pagina < totalPaginas,
+            Dados = dados
+        };
     }
 
     public async Task<VericuloResponseDto?> AtualizarAsync(int id, AtualizarVericuloDto dto, CancellationToken ct = default)
@@ -104,30 +171,58 @@ public class VerisculoServico(IRepositorioVersiculo repositorio, IRepositorioTra
     public async Task<IEnumerable<VericuloResponseDto>> ObterPorLivroAsync(int livro, int traducaoId, CancellationToken ct = default)
     {
         var versiculos = await repositorio.ObterPorLivroAsync(livro, traducaoId);
-        var lista = new List<VericuloResponseDto>();
-        foreach (var v in versiculos)
-            lista.Add(await ToDtoAsync(v, ct));
-        return lista;
+        var traducao = await repositorioTraducao.ObterPorIdAsync(traducaoId, ct);
+
+        return versiculos.Select(v => new VericuloResponseDto
+        {
+            Id = v.Id,
+            Livro = v.Livro,
+            Capitulo = v.Capitulo,
+            Numero = v.Numero,
+            Texto = v.Texto,
+            TraducaoId = v.TraducaoId,
+            TraducaoAbreviacao = traducao?.Abreviacao,
+            DataCriacao = v.DataCriacao
+        }).ToList();
     }
 
     public async Task<IEnumerable<VericuloResponseDto>> ObterPorLivroCaptituloAsync(int livro, int capitulo, int traducaoId, CancellationToken ct = default)
     {
         var versiculos = await repositorio.ObterPorLivroCaptituloAsync(livro, capitulo, traducaoId);
-        var lista = new List<VericuloResponseDto>();
-        foreach (var v in versiculos)
-            lista.Add(await ToDtoAsync(v, ct));
-        return lista;
+        var traducao = await repositorioTraducao.ObterPorIdAsync(traducaoId, ct);
+
+        return versiculos.Select(v => new VericuloResponseDto
+        {
+            Id = v.Id,
+            Livro = v.Livro,
+            Capitulo = v.Capitulo,
+            Numero = v.Numero,
+            Texto = v.Texto,
+            TraducaoId = v.TraducaoId,
+            TraducaoAbreviacao = traducao?.Abreviacao,
+            DataCriacao = v.DataCriacao
+        }).ToList();
     }
 
     public async Task<IEnumerable<VericuloResponseDto>> ObterIntervaloVersiculosAsync(int livro, int capitulo, int traducaoId, int inicio, int fim, CancellationToken ct = default)
     {
         var versiculos = await repositorio.ObterPorLivroCaptituloAsync(livro, capitulo, traducaoId);
-        var lista = new List<VericuloResponseDto>();
+        var traducao = await repositorioTraducao.ObterPorIdAsync(traducaoId, ct);
 
-        foreach (var v in versiculos.Where(v => v.Numero >= inicio && v.Numero <= fim).OrderBy(v => v.Numero))
-            lista.Add(await ToDtoAsync(v, ct));
-
-        return lista;
+        return versiculos
+            .Where(v => v.Numero >= inicio && v.Numero <= fim)
+            .OrderBy(v => v.Numero)
+            .Select(v => new VericuloResponseDto
+            {
+                Id = v.Id,
+                Livro = v.Livro,
+                Capitulo = v.Capitulo,
+                Numero = v.Numero,
+                Texto = v.Texto,
+                TraducaoId = v.TraducaoId,
+                TraducaoAbreviacao = traducao?.Abreviacao,
+                DataCriacao = v.DataCriacao
+            }).ToList();
     }
 
     private async Task<VericuloResponseDto> ToDtoAsync(Versiculo v, CancellationToken ct = default)

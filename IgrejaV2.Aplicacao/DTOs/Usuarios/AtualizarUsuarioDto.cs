@@ -4,6 +4,7 @@ namespace IgrejaV2.Aplicacao.DTOs.Usuarios;
 
 public class AtualizarUsuarioDto
 {
+    public bool Ativo { get; set; }
     public string NomeUsuario { get; set; } = string.Empty;
     public TipoUsuarioEnum TipoUsuario { get; set; }
 }

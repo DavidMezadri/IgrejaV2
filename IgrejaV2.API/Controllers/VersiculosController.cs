@@ -27,14 +27,35 @@ public class VersiculosController(VerisculoServico servico) : ControllerBase
         return CreatedAtAction(nameof(ObterPorId), new { id = vericulo.Id }, vericulo);
     }
 
-    /// <summary>Lista todos os versículos.</summary>
-    /// <response code="200">Lista de versículos.</response>
-    [HttpGet]
+    /// <summary>Lista todos os versículos (sem paginação — não recomendado para produção).</summary>
+    /// <response code="200">Lista completa de versículos.</response>
+    [HttpGet("todos")]
     [ProducesResponseType(typeof(IEnumerable<VericuloResponseDto>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> Listar(CancellationToken ct)
+    public async Task<IActionResult> ListarTodos(CancellationToken ct)
     {
         var versiculos = await servico.ListarTodosAsync(ct);
         return Ok(versiculos);
+    }
+
+    /// <summary>Lista versículos com paginação e filtros.</summary>
+    /// <param name="pagina">Número da página (padrão: 1).</param>
+    /// <param name="tamanhoPagina">Quantidade por página (padrão: 50, máximo: 500).</param>
+    /// <param name="livro">Filtrar por número do livro (1-66).</param>
+    /// <param name="capitulo">Filtrar por capítulo.</param>
+    /// <param name="traducaoId">Filtrar por tradução.</param>
+    /// <response code="200">Página de versículos.</response>
+    [HttpGet]
+    [ProducesResponseType(typeof(ListarVersiculosPaginadoResponseDto), StatusCodes.Status200OK)]
+    public async Task<IActionResult> Listar(
+        [FromQuery] int pagina = 1,
+        [FromQuery] int tamanhoPagina = 50,
+        [FromQuery] int? livro = null,
+        [FromQuery] int? capitulo = null,
+        [FromQuery] int? traducaoId = null,
+        CancellationToken ct = default)
+    {
+        var resultado = await servico.ListarPaginadoAsync(pagina, tamanhoPagina, livro, capitulo, traducaoId, ct);
+        return Ok(resultado);
     }
 
     /// <summary>Obtém um versículo pelo ID.</summary>

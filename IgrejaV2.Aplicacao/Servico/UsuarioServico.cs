@@ -23,7 +23,7 @@ public class UsuarioServico(IRepositorioUsuario repositorio, LogServico logServi
             NomeUsuario = dto.NomeUsuario,
             Email = dto.Email,
             Senha = BC.HashPassword(dto.Senha),
-            TipoUsuario = dto.TipoUsuario,
+            TipoUsuario = TipoUsuarioEnum.Membro,
             PrimeiroAcesso = true
         };
 
@@ -64,6 +64,7 @@ public class UsuarioServico(IRepositorioUsuario repositorio, LogServico logServi
 
         usuario.NomeUsuario = dto.NomeUsuario;
         usuario.TipoUsuario = dto.TipoUsuario;
+        usuario.Ativo = dto.Ativo;
         usuario.DataAtualizacao = DateTime.UtcNow;
 
         await repositorio.AtualizarAsync(usuario, ct);
@@ -110,6 +111,7 @@ public class UsuarioServico(IRepositorioUsuario repositorio, LogServico logServi
         NomeUsuario = u.NomeUsuario,
         Email = u.Email,
         TipoUsuario = u.TipoUsuario,
+        Ativo = u.Ativo,
         PrimeiroAcesso = u.PrimeiroAcesso,
         UltimoLogin = u.UltimoLogin,
         DataCriacao = u.DataCriacao
