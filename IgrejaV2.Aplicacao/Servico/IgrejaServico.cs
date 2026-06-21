@@ -20,7 +20,6 @@ public class IgrejaServico(IRepositorioIgreja repositorio, LogServico logServico
             Cnpj = dto.Cnpj,
             Telefone = dto.Telefone,
             Email = dto.Email,
-            Lema = dto.Lema,
             EnderecoId = dto.EnderecoId,
             DataFundacao = dto.DataFundacao,
             Observacoes = dto.Observacoes,
@@ -71,7 +70,6 @@ public class IgrejaServico(IRepositorioIgreja repositorio, LogServico logServico
         igreja.Cnpj = dto.Cnpj;
         igreja.Telefone = dto.Telefone;
         igreja.Email = dto.Email;
-        igreja.Lema = dto.Lema;
         igreja.EnderecoId = dto.EnderecoId;
         igreja.DataFundacao = dto.DataFundacao;
         igreja.Ativa = dto.Ativa;
@@ -124,7 +122,6 @@ public class IgrejaServico(IRepositorioIgreja repositorio, LogServico logServico
             Cnpj = igreja.Cnpj,
             Telefone = igreja.Telefone,
             Email = igreja.Email,
-            Lema = igreja.Lema,
             EnderecoId = igreja.EnderecoId,
             DataFundacao = igreja.DataFundacao,
             Ativa = igreja.Ativa,

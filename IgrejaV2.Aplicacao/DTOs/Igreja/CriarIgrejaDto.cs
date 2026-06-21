@@ -17,10 +17,6 @@ public class CriarIgrejaDto
     [EmailAddress]
     [MaxLength(200)]
     public string? Email { get; set; }
-
-    [MaxLength(500)]
-    public string? Lema { get; set; }
-
     public int? EnderecoId { get; set; }
     public DateTime? DataFundacao { get; set; }
 
